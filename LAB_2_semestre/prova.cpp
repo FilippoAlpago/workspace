@@ -6,6 +6,11 @@ int main()
     {
         std::cout<<i<<std::endl;
     }
+    char c;
+    int n=2;
+    c=(char)n;
+    std::cout<<n<<" this is N \n";
+    std::cout<<c<<" this is the char of N";
     return 0;
     
 }
