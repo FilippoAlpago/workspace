@@ -95,3 +95,4 @@ private:
 };
 
 // la struct di impl contiene i dati per costruire player
+// le board sono metodi per costruire i campi di gioco
