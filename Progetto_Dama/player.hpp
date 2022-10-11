@@ -19,7 +19,8 @@ public:
 	 * type 'e' is used for empty board cells. 
 	 */
 	enum piece {x, o, X, O, e};
-	//piece::e
+	
+	
 	/*
 	 * start player with empty history. player_nr can be either 1 or 2. 
 	 * Player 1 is the one starting in the low row values (rows 0,1,2), 
