@@ -19,7 +19,7 @@ Player::Player(int player_nr = 1)
 {
     //prima creo una nuova mossa, poi la attaco alla history
     
-    
+    int a;
 
     
 }
