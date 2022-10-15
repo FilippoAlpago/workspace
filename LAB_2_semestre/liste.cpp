@@ -5,12 +5,11 @@ class ListInt{
 		ListInt();  //Deafult Constructor
 		~ListInt();  //Destructor
 		ListInt(const ListInt& s); //Copy constructor
-
 		void prepend(int el);
 		void append(int el);
+		
 		void print() const;
 		void read();
-
 		void merge(const ListInt& l1, const ListInt& l2); //date due liste ordinate l1 e l2
 		                                    //l'oggetto corrente contiene tutti gli elementi di l1
 														//ed l2 duplicati ed ordinati (l1 e l2 non vengono modificate)
@@ -18,14 +17,11 @@ class ListInt{
 																			//l'oggetto corrente 'ruba' lo stato di l1 e l2
 																			//memorizzandone le celle in ordine. Dopo la
 																			//chiamata sia l1 che l2 sono le liste vuote
-
 		int& at(unsigned int pos);
 		const int& at(unsigned int pos) const;
 
 		ListInt& operator=(const ListInt& x);
 		ListInt operator+(const ListInt& x) const;
-
-		
 	private:
 		struct Cell {
 			int info;
@@ -70,16 +66,17 @@ void ListInt::read() {
 		int e;
 		std::cin>>e;
 		append(e);
+
 	}
 }
 
 
-void ListInt::append(int el) {
+void ListInt::append(int el) {//inserisci alla fine della coda
 	if (head==nullptr) 
 		prepend(el);
 	else {
 		Pcell pc = head;
-		while (pc->next!=nullptr)
+		while (pc->next!=nullptr)//scorro alla fine della lista
 			pc = pc->next;
 		pc->next = new Cell;
 		pc->next->info = el;
@@ -87,7 +84,9 @@ void ListInt::append(int el) {
 	}
 }
 
-void ListInt::prepend(int el) {
+
+
+void ListInt::prepend(int el) {//inserisci all'inizio della lista
 	Pcell newone = new Cell;
 	newone->info = el;
 	newone->next = head;
@@ -104,10 +103,11 @@ void ListInt::print() const {
 
 
 ListInt::ListInt(const ListInt& s) {
+	//copy costructor, mi serve sennò da problemi, dato che il distruttore viene chiamato sempre; così facedo elimina solo una copia
 	head = copy(s.head);
 }
 
-ListInt::Pcell ListInt::copy(Cell* source) const{
+ListInt::Pcell ListInt::copy(Cell* source) const{//copia un passo alla volta
 	if (source == nullptr)
 		return nullptr;
 	else {
@@ -119,11 +119,11 @@ ListInt::Pcell ListInt::copy(Cell* source) const{
 }
 
 ListInt& ListInt::operator=(const ListInt& x) {
-	if (this != &x) {
-		destroy(head);
-		head = copy(x.head);
+	if (this != &x) {//se i due sono diversi alora posso mettere il contenuro di quello a DX in quello che sta a SX
+		destroy(head);//elimino quello che sta a SX
+		head = copy(x.head);//ora head punta a quello che sta a DX
 	}
-	return *this;
+	return *this;// se sono uguali non faccio 'niente'
 }	
 
 
