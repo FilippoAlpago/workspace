@@ -9,11 +9,13 @@ struct mossa
     int Campo_gioco [8][8];//campo da gioco di dama
     mossa* next=nullptr;//mossa succesiva
 };
+
 struct Player::Impl
 {
-    mossa* history=nullptr;//history tiene traccia di tutte le mosse
-    int contaMosse=0;//mi serve poi per accedere alla i-esima history es, se ho 8 mosse e voglio accedere alla terzultima vado avanti finche contaotre!=contaMosse-i
+    mossa* history;//history tiene traccia di tutte le mosse
+    //int contaMosse=0;//mi serve poi per accedere alla i-esima history es, se ho 8 mosse e voglio accedere alla terzultima vado avanti finche contaotre!=contaMosse-i
 };
+
 Player::~Player()
 {
     delete this->pimpl;
@@ -22,31 +24,39 @@ Player::~Player()
 Player::Player(int player_nr = 1)
 {
     pimpl->history=new mossa;
-    //impostare campo di gioco con pedine
+}
+
+void Player::init_board(const std::string& filename) const
+{//create and store an initial board to file
+//impostare campo di gioco con pedine
     //Player 1 is the one starting in the low row values (rows 0,1,2), 
 	//player 2 starts in the high row values (rows 5,6,7).
-    
-    for(int i=0;i<9;i++)
+    this->pimpl->history= new mossa;
+    ofstream Myfile(filename);
+    for(int i=0;i<8;i++)
     {
-        for(int j=0;j<9;j++)
+        for(int j=0;j<8;j++)
         {
-            if(0<=i<3||4<i<9)
+            if(0<=i<3||4<i<8)
             {//sono nel 'campo' di player 1 o player 2
-                if((i%2==0&&j%2!=0)||(i%2!=0&&j%2==0))
-                {//riempi con x o o se riga pari colonna dispari o riga dispari colonna pari
+                if((i%2==0&&j%2==0)||(i%2!=0&&j%2!=0))
+                {//riempi con x o o se riga pari colonna pari o riga dispari colonna dispari
                     if(0<=i<3)
                     {//sono nel campo di player 1
-                        this->pimpl->history->Campo_gioco[i][j]=this->x;
+                        this->pimpl->history->Campo_gioco[i][j]=this->o;
+                        Myfile<<o;
                     }
                     else
                     {//sono nel campo di player 2
-                        this->pimpl->history->Campo_gioco[i][j]=this->o;
+                        this->pimpl->history->Campo_gioco[i][j]=this->x;
+                        Myfile<<x;
                     }
                     
                 }
                 else
                 {//riempo con vuoto
                     this->pimpl->history->Campo_gioco[i][j]=this->e;
+                    Myfile<<" ";
                 }
                     
                
@@ -54,10 +64,12 @@ Player::Player(int player_nr = 1)
             else
             {//sono in mezzo e riempo con vuoto
                 this->pimpl->history->Campo_gioco[i][j]=this->e;
+                Myfile<<" ";
             }
             //ciao sono un commento
             
         }
+        Myfile<<"\n";
     }
-    
+    Myfile.close();
 }

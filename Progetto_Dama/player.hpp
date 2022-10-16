@@ -37,23 +37,23 @@ public:
 	 * piece contained at cell (r,c) (row-column) in the history_offset-th board in the past 
 	 * (i.e. if history_offset = 0, then the board is the most recent one)
 	 */
-	piece operator()(int r, int c, int history_offset = 0) const;
+	piece operator()(int r, int c, int history_offset = 0) const;//operatore 'at'
 	
 	/* load board from file and append it at the end of the history.
 	 * Suggestion: store the history in a structure efficiently supporting adding a new board!
 	 * an array of boards is good only if you re-allocate using a doubling technique. 
 	 * Better to use a list of boards.  
 	 */
-	void load_board(const std::string& filename);
+	void load_board(const std::string& filename);//legge una scacchiera da file e la mette alla fine della hystory 
 
 	/*
 	 * save the history_offset-th board (counting from most to least recent) to file
 	 * (if history_offset = 0, then the board is the most recent one)
 	 */
-	void store_board(const std::string& filename, int history_offset = 0) const;
+	void store_board(const std::string& filename, int history_offset = 0) const;//dalla hystory-iesima prendo una board e la salvo su un file
 	
 	//create and store an initial board to file
-	void init_board(const std::string& filename) const;
+	void init_board(const std::string& filename) const;//creao e salvo una schacchiera iniziale su un file
 	
 	/* 
 	 * make a move starting from the most recent board in the history.
