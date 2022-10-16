@@ -55,6 +55,7 @@ Player::Player(int player_nr = 1)
             {//sono in mezzo e riempo con vuoto
                 this->pimpl->history->Campo_gioco[i][j]=this->e;
             }
+            //ciao sono un commento
             
         }
     }
