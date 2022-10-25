@@ -15,8 +15,6 @@ struct Player::Impl
 
     mossa* history;//history tiene traccia di tutte le mosse
     int Player_Number;
-    player_exception exc;
-    int contaMosse=0;//mi serve poi per accedere alla i-esima history es, se ho 8 mosse e voglio accedere alla terzultima vado avanti finche contaotre!=contaMosse-i
 };
 
 Player::~Player()
@@ -26,8 +24,19 @@ Player::~Player()
 
 Player::Player(int player_nr = 1)
 {
-    pimpl->history=new mossa;
-    this->pimpl->Player_Number=player_nr;
+    if(player_nr==1||player_nr==2)
+    {
+        pimpl->history=new mossa;
+        this->pimpl->Player_Number=player_nr;
+    }
+    else
+    {
+        
+        string str="player number"+to_string(player_nr) +"non permesso";
+        throw player_exception{player_exception::index_out_of_bounds,str};
+        
+    }
+    
 }
 
 void Player::init_board(const std::string& filename) const
@@ -102,7 +111,6 @@ void Player::pop()
             app=app->next;
         }
         delete(app);
-        app=nullptr;
     }
     
 }
@@ -114,7 +122,7 @@ Player::piece Player::operator()(int r, int c, int history_offset = 0) const
         1) arrivare alla hystory-esima, difficile, se non la trovo errore index_out_of_bounds
         2)dopo che sono arrivato accedo a campo e ritorno il valore (r,c), se sono dentro i limiti sennò index_out_of_bounds
     */
-   
+    
     
 }
 
@@ -123,8 +131,9 @@ bool Player::wins() const
     //se player 1 vedo se non ci sono più o/O con player 2 viceversa
     piece PedineDaControllare;
     piece DameDaControllare;
+    mossa* app=this->pimpl->history;
     if(this->pimpl->Player_Number==1)
-    {
+    {//in base al player cerco determinate pedine, se non sono presenti allora vuol dire che ho vinto
         PedineDaControllare=o;
         DameDaControllare=O;
     }
@@ -133,11 +142,38 @@ bool Player::wins() const
         PedineDaControllare=x;
         DameDaControllare=X;
     }
-    for(int i=0;i<8;i++)
-    {
-        for(int j=0;j<8;j++)
-        {
-            //metodo at da implementare
+    int i,j=0;
+    bool trovato=false;
+    if(app!=nullptr)
+    {//hystory non vuota
+        while(app->next!=nullptr)
+        {//vai all'ultima board
+            app=app->next;
         }
+
+        while(i<=7&&trovato==false)
+        {
+            while(j<=7&&trovato==false)
+            {
+                if(app->Campo_gioco[i][j]==PedineDaControllare||app->Campo_gioco[i][j]==DameDaControllare)
+                {//se in quella cella è presenta una pedina/dama che sto cercando, allora vuol dire che non ho vinto ancora
+                    trovato=true;
+                }
+                j++;
+            }
+            i++;
+        }
+        return !trovato;//siccome sto cercando determinate pedine, non trovarle vuol dire che ho vinto(trovato=false ho vinto), altrimenti vuol dire che non ho vinto
+
     }
+    else
+    {
+        return false;//non ho nessuna board su cui verificare se ho vinto
+    }
+    
+}
+
+bool Player::loses() const
+{
+    return !this->wins();
 }
