@@ -43,14 +43,19 @@ Player::Player(const Player& p)
 {
     this->pimpl->Player_Number=p.pimpl->Player_Number;
     //deep copy della hystory  di p in quella di this
+    //in ->next faccio una new e poi copio
     mossa* app1=this->pimpl->history;
     mossa* app2=p.pimpl->history;
     
 }
 
-Player& Player::operator=(const Player&)
+Player& Player::operator=(const Player& p)
 {
-
+    if(this!= &p)
+    {
+        //distuggi hystory this e poi copia quello che ci sta in p
+    }
+    return *this;
 }
 
 Player::piece Player::operator()(int r, int c, int history_offset = 0) const
