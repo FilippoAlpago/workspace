@@ -1,5 +1,4 @@
 #include "player.cpp"
-#include"player.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -11,6 +10,7 @@ int main()
     cout<<"inserisci player";
     cin>>Player_nr;
     Player P1(Player_nr);
+    
     
     return 0;
 }

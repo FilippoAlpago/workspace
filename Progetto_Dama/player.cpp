@@ -1,4 +1,4 @@
-#include"player.hpp"
+#include "player.hpp"
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -17,11 +17,6 @@ struct Player::Impl
     int Player_Number;
 };
 
-Player::~Player()
-{
-    delete this->pimpl;
-}
-
 Player::Player(int player_nr = 1)
 {
     if(player_nr==1||player_nr==2)
@@ -37,6 +32,46 @@ Player::Player(int player_nr = 1)
         
     }
     
+}
+
+Player::~Player()
+{
+    delete this->pimpl;
+}
+
+Player::Player(const Player& p)
+{
+    this->pimpl->Player_Number=p.pimpl->Player_Number;
+    //deep copy della hystory  di p in quella di this
+    mossa* app1=this->pimpl->history;
+    mossa* app2=p.pimpl->history;
+    
+}
+
+Player& Player::operator=(const Player&)
+{
+
+}
+
+Player::piece Player::operator()(int r, int c, int history_offset = 0) const
+{
+    //vedere se esiste la hystory-esima(legge al contrario), capire come lanciare errore
+    /*
+        1) arrivare alla hystory-esima, difficile, se non la trovo errore index_out_of_bounds
+        2)dopo che sono arrivato accedo a campo e ritorno il valore (r,c), se sono dentro i limiti sennò index_out_of_bounds
+    */
+    
+    
+}
+
+void Player::load_board(const std::string& filename)
+{
+
+}
+
+void Player::store_board(const std::string& filename, int history_offset = 0) const
+{
+
 }
 
 void Player::init_board(const std::string& filename) const
@@ -58,7 +93,7 @@ void Player::init_board(const std::string& filename) const
                 //siccome sto costruendo con un vettore le posizioni di Player 1/2 sono 'rovesciati'
                     if(0<=i<3)
                     {//sono nel campo di player 2
-                        this->pimpl->history->Campo_gioco[i][j]=this->x;
+                        
                         if(j==7)
                         {
                             Myfile<<x;
@@ -71,7 +106,7 @@ void Player::init_board(const std::string& filename) const
                     }
                     else
                     {//sono nel campo di player 1
-                        this->pimpl->history->Campo_gioco[i][j]=this->o;
+                        
                         if(j==7)
                         {
                             Myfile<<o;
@@ -86,19 +121,29 @@ void Player::init_board(const std::string& filename) const
                 }
                 else
                 {//riempo con vuoto
-                    this->pimpl->history->Campo_gioco[i][j]=this->e;
+                    
                     Myfile<<" ";
                 }
             }
             else
             {//sono in mezzo e riempo con vuoto
-                this->pimpl->history->Campo_gioco[i][j]=this->e;
+                
                 Myfile<<" ";
             }
         }
         Myfile<<"\n";
     }
     Myfile.close();
+}
+
+void Player::move()
+{
+
+}
+
+bool Player::valid_move() const
+{
+
 }
 
 void Player::pop()
@@ -112,18 +157,16 @@ void Player::pop()
         }
         delete(app);
     }
+    else
+    {
+        throw player_exception{player_exception::index_out_of_bounds};
+    }
     
 }
 
-Player::piece Player::operator()(int r, int c, int history_offset = 0) const
+bool Player::wins(int player_nr) const
 {
-    //vedere se esiste la hystory-esima(legge al contrario), capire come lanciare errore
-    /*
-        1) arrivare alla hystory-esima, difficile, se non la trovo errore index_out_of_bounds
-        2)dopo che sono arrivato accedo a campo e ritorno il valore (r,c), se sono dentro i limiti sennò index_out_of_bounds
-    */
-    
-    
+
 }
 
 bool Player::wins() const
@@ -173,7 +216,17 @@ bool Player::wins() const
     
 }
 
+bool Player::loses(int player_nr) const
+{
+
+}
+
 bool Player::loses() const
 {
     return !this->wins();
+}
+
+int Player::recurrence() const
+{
+
 }
