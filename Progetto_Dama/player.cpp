@@ -42,11 +42,31 @@ Player::~Player()
 Player::Player(const Player& p)
 {
     this->pimpl->Player_Number=p.pimpl->Player_Number;
-    //deep copy della hystory  di p in quella di this
-    //in ->next faccio una new e poi copio
-    mossa* app1=this->pimpl->history;
-    mossa* app2=p.pimpl->history;
+    mossa* newHystory=nullptr;
+    mossa* app=p.pimpl->history;
+    newHystory=copy(app);
     
+}
+mossa* copy(mossa* source)//metodo interno per copia, servira per copy costructor e =
+{
+    if(source==nullptr)
+    {
+        return nullptr;
+    }
+    else
+    {
+        mossa* destination=new mossa;
+        //deep copy campo da gioco
+        for(int i=0;i<8;i++)
+        {
+            for(int j=0;j<8;j++)
+            {
+                destination->Campo_gioco[i][j]=source->Campo_gioco[i][j];
+            }
+        }
+        destination->next=copy(source->next);
+        return destination;
+    }
 }
 
 Player& Player::operator=(const Player& p)
@@ -54,6 +74,10 @@ Player& Player::operator=(const Player& p)
     if(this!= &p)
     {
         //distuggi hystory this e poi copia quello che ci sta in p
+        delete(this->pimpl->history);
+        mossa* app=p.pimpl->history;
+        this->pimpl->history=copy(app);
+        this->pimpl->Player_Number=p.pimpl->Player_Number;
     }
     return *this;
 }
