@@ -129,13 +129,13 @@ Player::piece Player::operator()(int r, int c, int history_offset) const
             }
             else
             {
-                string str="c="+to_string(c) +" colonna non esistente";
+                string str="c="+to_string(c) +", colonna non esistente";
                 throw player_exception{player_exception::index_out_of_bounds,str};
             }
         }
         else
         {
-            string str="r="+to_string(r) +"riga non esistente";
+            string str="r="+to_string(r) +", riga non esistente";
             throw player_exception{player_exception::index_out_of_bounds,str};
         }
     }
@@ -149,7 +149,46 @@ void Player::load_board(const std::string& filename)
 
 void Player::store_board(const std::string& filename, int history_offset) const
 {
-
+    int NumBoard=countBoard(this->pimpl->history);
+    if(NumBoard<history_offset||history_offset<0||NumBoard==0)
+    {
+        string str="history numero"+to_string(history_offset) +"non esistente";
+        throw player_exception{player_exception::index_out_of_bounds,str};
+    }
+    else
+    {
+        ofstream Myfile(filename);
+        int counter=NumBoard-history_offset;
+        int i=0;
+        mossa* app=this->pimpl->history;
+        while(i!=counter)
+        {
+            app=app->next;
+            i++;
+        }
+        for(int i=0;i<8;i++)
+        {
+            for(int j=0;j<8;j++)
+            {
+                Myfile<<to_string(app->Campo_gioco[i][j]);
+                if(i==7&&j==7)
+                {
+                    Myfile<<"\0";
+                }
+                else
+                {
+                    if(j==7)
+                    {
+                        Myfile<<"\n";
+                    }
+                    else
+                    {
+                        Myfile<<" ";
+                    }
+                }
+            }
+        }
+    }
 }
 
 void Player::init_board(const std::string& filename) const
@@ -172,12 +211,12 @@ void Player::init_board(const std::string& filename) const
                         
                         if(j==7)
                         {
-                            Myfile<<x<<"\n";
+                            Myfile<<"x"<<"\n";
                             
                         }
                         else
                         {
-                            Myfile<<x<<" ";
+                            Myfile<<"x"<<" ";
                         }
                         
                     }
@@ -188,17 +227,17 @@ void Player::init_board(const std::string& filename) const
                         {
                             if(i==7)
                             {//ultima riga e colonna
-                                Myfile<<o<<"\0";
+                                Myfile<<"o"<<"\0";
                             }
                             else 
                             {//ultima colonna, ma non riga
-                                Myfile<<o<<"\n";
+                                Myfile<<"o"<<"\n";
                             }
                             
                         }
                         else
                         {
-                            Myfile<<o<<" ";
+                            Myfile<<"o"<<" ";
                         }
                         
                     }
@@ -233,11 +272,43 @@ void Player::move()
     {
         mossa* app=this->pimpl->history;
         while (app->next!=nullptr)
-        {
+        {//ultima hystory
             app=app->next;
         }
+        piece pedinaDaMuovere,DamaDaMuovere;
+        if(this->pimpl->Player_Number==1)
+        {
+            pedinaDaMuovere=x;
+            DamaDaMuovere=X;
+        }
+        else
+        {
+            pedinaDaMuovere=o;
+            DamaDaMuovere=O;
+        }
+        /*x sposto con --di riga e ++ di colonna oppure -- di riga e -- colonna; 
+          o sposrto con ++ riga e ++ colonna oppure -- colonna e ++ riga
+          Dame si possono muovere in qualsiasi direzione
+        1) scelgo a caso una pedina fra le mie(genero 2 cordinate e cerco in quella posizione) e la muovo(scelgo a caso la mossa??????)
+        2) se posso mangiare mangio
+        3) se se arriva a riga=0 allora diventa Dama
+        */
+
+        int max=7,min=0,range=max-min+1;
+        int rows=rand()%range+min, cools=rand()%range+min;
+        while(app->Campo_gioco[rows][cools]!=pedinaDaMuovere||app->Campo_gioco[rows][cools]!=DamaDaMuovere)
+        {//continuo a 'ceracare' finchè non ho trovato una mia pedina/dama
+            rows=rand()%range+min;
+            cools=rand()%range+min;
+        }
+
+        //muovere, prima controllo se posso mangiare(difficile, controllare se adicente c'è una pedina e vedere se nella diagonale dopo c'e uno spazio libero)
         
     }
+}
+bool i_can_eat(Player::piece pedina, Player::piece board[][8] )
+{
+    //controllare se in basso a sx/dx(x,X) c'è o,O; se c'è allora controllo se nella diagonale dopo vuota, se vuota mangio sennò no. PEDINA MANGIA PEDINA tranne Dama,DAMA MANGIA TUTTO anche altra dama
 }
 
 bool Player::valid_move() const
@@ -342,7 +413,7 @@ bool Player::loses(int player_nr) const
     }
     else
     {
-        if((player_nr==1&&player_nr==this->pimpl->Player_Number)||(player_nr==1&&player_nr==this->pimpl->Player_Number))
+        if((player_nr==1&&player_nr==this->pimpl->Player_Number)||(player_nr==2&&player_nr==this->pimpl->Player_Number))
         {//se player_nr coincide con player_Number allora richiamo Player::loses()
             return this->loses();
         }
