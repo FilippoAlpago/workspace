@@ -1,8 +1,5 @@
 #include "player.hpp"
-#include <iostream>
-#include <fstream>
-#include <string>
-#include <stdlib.h>
+
 using namespace std;
 struct mossa
 {
@@ -144,8 +141,53 @@ Player::piece Player::operator()(int r, int c, int history_offset) const
 
 void Player::load_board(const std::string& filename)
 {
+    /*
+        1) controllare se formato file corretto .txt
+        2) vedere se file si è aperto corretamente
+        3) leggere riga per riga, elimnare spazi in eccesso e controlare che la board sia valida; numero pedine giusto, lunghezza riga==15, pedine su posizione correta{riga P colonna P, riga D colonna D}
+    */
+   if(filename.substr(filename.find_last_of(".")+1)=="txt")
+   {//estensione correta
+        ifstream Myfile;
+        Myfile.open(filename);
+        if(Myfile.good())
+        {// è stato aperto corretamente
+        string riga;
+        bool rigaApposto=true;
+        int i=0,j=0;//interatori per aggiungere elementi letti dal file nella 
+            while(getline(Myfile,riga)&&rigaApposto==true)
+            {//faccio cose
+                if(riga.length()!=15)
+                {
+                    rigaApposto=false;
+                }
+                else
+                {//modifico e aggiungo riga alla mia board
+                    
+                }
+                //dopo aver finito di aggiungere alla mia board, controllo numero pedine(0<=Num<=12) e la loro posizione
+            }
+            if(rigaApposto==false)
+            {
+                string str="il file "+filename+" contiene una riga non valida";
+                throw player_exception{player_exception::invalid_board,str};
+            }
 
+            Myfile.close();
+        }
+        else
+        {//erroe nell'apertura del file
+            string str="errore nell'apertura di "+filename+", probabilmente il file non esiste";
+            throw player_exception{player_exception::missing_file,str};
+        }
+   }
+   else
+   {
+        string str="filename "+filename+" non ha un estensione corretta";
+        throw player_exception{player_exception::missing_file,str};
+   }
 }
+void sistemaRiga(string& rigaDasistemare);
 
 void Player::store_board(const std::string& filename, int history_offset) const
 {
@@ -170,24 +212,23 @@ void Player::store_board(const std::string& filename, int history_offset) const
         {
             for(int j=0;j<8;j++)
             {
-                Myfile<<to_string(app->Campo_gioco[i][j]);
-                if(i==7&&j==7)
+                Myfile<<to_string(app->Campo_gioco[i][j]);     
+                if(j==7)
                 {
-                    Myfile<<"\0";
+                    if(i!=7)
+                    {// ogni volta che arrivo a j==7 e i!=7 faccio una newLine
+                        Myfile<<"\n";
+                    }
+                    //non entro nel if se i==7, banalmente non scrivo niente
                 }
                 else
                 {
-                    if(j==7)
-                    {
-                        Myfile<<"\n";
-                    }
-                    else
-                    {
-                        Myfile<<" ";
-                    }
+                    Myfile<<" ";
                 }
+                
             }
         }
+        Myfile.close();
     }
 }
 
@@ -211,12 +252,12 @@ void Player::init_board(const std::string& filename) const
                         
                         if(j==7)
                         {
-                            Myfile<<"x"<<"\n";
+                            Myfile<<"o"<<"\n";
                             
                         }
                         else
                         {
-                            Myfile<<"x"<<" ";
+                            Myfile<<"o"<<" ";
                         }
                         
                     }
@@ -227,17 +268,17 @@ void Player::init_board(const std::string& filename) const
                         {
                             if(i==7)
                             {//ultima riga e colonna
-                                Myfile<<"o"<<"\0";
+                                Myfile<<"x";
                             }
-                            else 
-                            {//ultima colonna, ma non riga
-                                Myfile<<"o"<<"\n";
+                            else
+                            {
+                                Myfile<<"x"<<"\n";
                             }
-                            
+                               
                         }
                         else
                         {
-                            Myfile<<"o"<<" ";
+                            Myfile<<"x"<<" ";
                         }
                         
                     }
@@ -306,10 +347,7 @@ void Player::move()
         
     }
 }
-bool i_can_eat(Player::piece pedina, Player::piece board[][8] )
-{
-    //controllare se in basso a sx/dx(x,X) c'è o,O; se c'è allora controllo se nella diagonale dopo vuota, se vuota mangio sennò no. PEDINA MANGIA PEDINA tranne Dama,DAMA MANGIA TUTTO anche altra dama
-}
+
 
 bool Player::valid_move() const
 {
@@ -344,7 +382,7 @@ bool Player::wins(int player_nr) const
     }
     else
     {
-        if((player_nr==1&&player_nr==this->pimpl->Player_Number)||(player_nr==1&&player_nr==this->pimpl->Player_Number))
+        if(player_nr==this->pimpl->Player_Number)
         {//se player_nr coincide con player_Number allora richiamo Player::wins()
             return this->wins();
         }
