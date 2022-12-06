@@ -152,21 +152,41 @@ void Player::load_board(const std::string& filename)
         Myfile.open(filename);
         if(Myfile.good())
         {// è stato aperto corretamente
-        string riga;
-        bool rigaApposto=true;
-        int i=0,j=0;//interatori per aggiungere elementi letti dal file nella 
+            string riga;
+            bool rigaApposto=true;
+            int rows=0,cools=0;//interatori per aggiungere elementi letti dal file nella board
+            mossa* app=this->pimpl->history;
+            if(app!=nullptr)
+            {
+                while (app->next!=nullptr)
+                {
+                    app=app->next;
+                }
+                        
+            }
+            app=new mossa;//creo la nuova 'mossa'
             while(getline(Myfile,riga)&&rigaApposto==true)
-            {//faccio cose
+            {//ad ogni riga letta, prima la "pulisco" dagli spazi in eccesso
                 if(riga.length()!=15)
                 {
                     rigaApposto=false;
                 }
                 else
                 {//modifico e aggiungo riga alla mia board
+                    sistemaRiga(riga);//pulisci riga
                     
+                    for(int i=0;i<riga.length();i++)
+                    {
+                        app->Campo_gioco[rows][cools]=CharToPiece(riga.at(i));
+                        cools++;
+                    }
+                    rows++;
+                    cools=0;
                 }
-                //dopo aver finito di aggiungere alla mia board, controllo numero pedine(0<=Num<=12) e la loro posizione
+                
             }
+            //dopo aver finito di aggiungere alla mia board, controllo numero pedine e dame(0<=Ped+Dame<=12) e la loro posizione
+
             if(rigaApposto==false)
             {
                 string str="il file "+filename+" contiene una riga non valida";
@@ -187,7 +207,55 @@ void Player::load_board(const std::string& filename)
         throw player_exception{player_exception::missing_file,str};
    }
 }
-void sistemaRiga(string& rigaDasistemare);
+
+bool boardApposto(Player::piece board[8][8]);//mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
+
+Player::piece CharToPiece(char c )
+{
+    if(c=='x')
+    {
+        return Player::piece::x;
+    }
+    else
+    {
+        if(c=='X')
+        {
+            return Player::piece::X;
+        }
+        else
+        {
+            if(c=='o')
+            {
+                return Player::piece::o;
+            }
+            else
+            {
+                if(c=='O')
+                {
+                    return Player::piece::O;
+                }
+                else
+                {
+                    return Player::piece::e;
+                }
+            }
+        }
+    }
+    
+}
+void sistemaRiga(string& rigaDasistemare)//metodo che elimina spazi in eccesso
+{//assunto il formato che la riga deve avere sul file
+    int i=1,countSpaziEliminati=0;
+    while(i<8)
+    {
+        if(i+countSpaziEliminati%2!=0)//se la somma dei 2 è dispari allora in quella posizione i vi è sicuramente un spazio in eccesso da eliminare
+        {
+            rigaDasistemare.erase(i);
+            countSpaziEliminati++;
+        }
+        i++;
+    }  
+}
 
 void Player::store_board(const std::string& filename, int history_offset) const
 {
@@ -211,8 +279,16 @@ void Player::store_board(const std::string& filename, int history_offset) const
         for(int i=0;i<8;i++)
         {
             for(int j=0;j<8;j++)
-            {
-                Myfile<<to_string(app->Campo_gioco[i][j]);     
+            {//se ritorna e devo scrivere " "
+                if(to_string(app->Campo_gioco[i][j])!="e")
+                {
+                    Myfile<<to_string(app->Campo_gioco[i][j]);
+                }
+                else
+                {
+                    Myfile<<" ";
+                }
+                     
                 if(j==7)
                 {
                     if(i!=7)
