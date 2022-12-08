@@ -15,6 +15,77 @@ struct Player::Impl
     
 };
 
+Player::piece CharToPiece(char c )
+{
+    if(c=='x')
+    {
+        return Player::piece::x;
+    }
+    else
+    {
+        if(c=='X')
+        {
+            return Player::piece::X;
+        }
+        else
+        {
+            if(c=='o')
+            {
+                return Player::piece::o;
+            }
+            else
+            {
+                if(c=='O')
+                {
+                    return Player::piece::O;
+                }
+                else
+                {
+                    return Player::piece::e;
+                }
+            }
+        }
+    }
+    
+}
+
+mossa* copy(mossa* source)//metodo interno per copia, servira per copy costructor e =
+{
+    if(source==nullptr)
+    {
+        return nullptr;
+    }
+    else
+    {
+        mossa* destination=new mossa;
+        //deep copy campo da gioco
+        for(int i=0;i<8;i++)
+        {
+            for(int j=0;j<8;j++)
+            {
+                destination->Campo_gioco[i][j]=source->Campo_gioco[i][j];
+            }
+        }
+        
+        destination->next=copy(source->next);
+        return destination;
+    }
+}
+
+void sistemaRiga(string& rigaDasistemare)//metodo che elimina spazi in eccesso
+{//assunto il formato che la riga deve avere sul file
+    int i=1,countSpaziEliminati=0;
+    while(i<8)
+    {
+        if(i+countSpaziEliminati%2!=0)//se la somma dei 2 è dispari allora in quella posizione i vi è sicuramente un spazio in eccesso da eliminare
+        {
+            rigaDasistemare.erase(i);
+            countSpaziEliminati++;
+        }
+        i++;
+    }  
+}
+
 Player::Player(int player_nr )
 {
     if(player_nr==1||player_nr==2)
@@ -55,30 +126,9 @@ Player::~Player()
 Player::Player(const Player& p)
 {
     this->pimpl->Player_Number=p.pimpl->Player_Number;
-    mossa* newHystory=nullptr;
-    newHystory=copy(p.pimpl->history);
-}
-mossa* copy(mossa* source)//metodo interno per copia, servira per copy costructor e =
-{
-    if(source==nullptr)
-    {
-        return nullptr;
-    }
-    else
-    {
-        mossa* destination=new mossa;
-        //deep copy campo da gioco
-        for(int i=0;i<8;i++)
-        {
-            for(int j=0;j<8;j++)
-            {
-                destination->Campo_gioco[i][j]=source->Campo_gioco[i][j];
-            }
-        }
-        
-        destination->next=copy(source->next);
-        return destination;
-    }
+    this->pimpl->history=copy(p.pimpl->history);
+    //mossa* newHystory=nullptr;
+    //newHystory=copy(p.pimpl->history);
 }
 
 Player& Player::operator=(const Player& p)
@@ -186,13 +236,70 @@ void Player::load_board(const std::string& filename)
                 
             }
             //dopo aver finito di aggiungere alla mia board, controllo numero pedine e dame(0<=Ped+Dame<=12) e la loro posizione
-
-            if(rigaApposto==false)
+            int NumPedine_o=0,numDame_O=0,NumPedine_x=0,numDame_X=0;
+            rows=0,cools=0;
+            bool BoardValida=true;
+            while (rows<8&&BoardValida==true)
             {
-                string str="il file "+filename+" contiene una riga non valida";
-                throw player_exception{player_exception::invalid_board,str};
+                while(cools<8&&BoardValida==true)
+                {
+                    if(app->Campo_gioco[rows][cools]!=e)
+                    {
+                        if((rows%2!=0&&cools&2==0)||(rows%2==0&&cools%2!=0))
+                        {//pedina o dama devono stare in posizione in cui Rows P e Cool P  o  Rows D e Cools D, altrimenti sono fuori posto
+                            BoardValida=false;
+                        }
+                        else
+                        {
+                            if(app->Campo_gioco[rows][cools]==x)
+                            {
+                                NumPedine_x++;
+                            }
+                            else
+                            {
+                                if(app->Campo_gioco[rows][cools]==X)
+                                {
+                                    numDame_X++;
+                                }
+                                else
+                                {
+                                    if(app->Campo_gioco[rows][cools]==o)
+                                    {
+                                        NumPedine_o++;
+                                    }
+                                    else
+                                    {
+                                        numDame_O++;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    cools++;
+                }
+                
+                rows++;
+            }
+            
+            if(NumPedine_o+numDame_O>12||NumPedine_x+numDame_X>12||(NumPedine_o+numDame_O==0&&NumPedine_x+numDame_X==0))
+            {//se somma delle 2 >12 ci sono troppo pedine in campo; oppure se la somma di entrambe=0 la scacchiera è vuota
+                BoardValida=false;
             }
 
+            if(BoardValida==false)
+            {
+                string str="il file "+filename+" contiene una scacchiera non valida";
+                throw player_exception{player_exception::invalid_board,str};
+            }
+            else
+            {
+                if(rigaApposto==false)
+                {
+                    string str="il file "+filename+" contiene una riga non valida";
+                    throw player_exception{player_exception::invalid_board,str};
+                }
+            }
+            
             Myfile.close();
         }
         else
@@ -210,52 +317,8 @@ void Player::load_board(const std::string& filename)
 
 bool boardApposto(Player::piece board[8][8]);//mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
 
-Player::piece CharToPiece(char c )
-{
-    if(c=='x')
-    {
-        return Player::piece::x;
-    }
-    else
-    {
-        if(c=='X')
-        {
-            return Player::piece::X;
-        }
-        else
-        {
-            if(c=='o')
-            {
-                return Player::piece::o;
-            }
-            else
-            {
-                if(c=='O')
-                {
-                    return Player::piece::O;
-                }
-                else
-                {
-                    return Player::piece::e;
-                }
-            }
-        }
-    }
-    
-}
-void sistemaRiga(string& rigaDasistemare)//metodo che elimina spazi in eccesso
-{//assunto il formato che la riga deve avere sul file
-    int i=1,countSpaziEliminati=0;
-    while(i<8)
-    {
-        if(i+countSpaziEliminati%2!=0)//se la somma dei 2 è dispari allora in quella posizione i vi è sicuramente un spazio in eccesso da eliminare
-        {
-            rigaDasistemare.erase(i);
-            countSpaziEliminati++;
-        }
-        i++;
-    }  
-}
+
+
 
 void Player::store_board(const std::string& filename, int history_offset) const
 {
@@ -427,7 +490,7 @@ void Player::move()
 
 bool Player::valid_move() const
 {
-
+    return true;
 }
 
 void Player::pop()
@@ -587,5 +650,5 @@ bool Player::loses() const
 
 int Player::recurrence() const
 {
-
+    return 0;
 }
