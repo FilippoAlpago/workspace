@@ -49,7 +49,7 @@ Player::piece CharToPiece(char c )
     
 }
 
-mossa* copy(mossa* source)//metodo interno per copia, servira per copy costructor e =
+mossa* copy( mossa* source)//metodo interno per copia, servira per copy costructor e =
 {
     if(source==nullptr)
     {
@@ -648,5 +648,48 @@ bool Player::loses() const
 
 int Player::recurrence() const
 {
-    return 0;
+    if(this->pimpl->history==nullptr)
+    {
+        string str="history vuota";
+        throw player_exception{player_exception::index_out_of_bounds,str};
+    }
+    else
+    {
+        mossa* last=this->pimpl->history;
+        while(last->next!=nullptr)
+        {//ultima board
+            last=last->next;
+        }
+        int count=0;
+        mossa* app=this->pimpl->history;
+        int rows,cools;
+        bool boardUguali=true;
+        while (app!=last)
+        {
+            rows=0,cools=0;
+            while (rows<=7&&boardUguali==true)
+            {
+                while(cools<=7&&boardUguali==true)
+                {
+                    
+                    if(last->Campo_gioco[rows][cools]==app->Campo_gioco[rows][cools])
+                    {
+                        boardUguali=false;
+                    }
+                    cools++;
+                }  
+                rows++; 
+            }
+            if(boardUguali==true)
+            {
+                count++;
+            }
+            
+            app=app->next;
+        }
+        
+        return count;
+    }
+
+    
 }
