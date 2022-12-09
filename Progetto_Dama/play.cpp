@@ -12,7 +12,8 @@ using std::string;
 
 int main(int argc, char **argv){
 	
-	int player_nr = atoi(argv[1]);	
+	int player_nr ;
+	cin>>player_nr;	
 	Player p(player_nr);//decido il player
 	
 	cout << "Playing as player " << player_nr << endl;

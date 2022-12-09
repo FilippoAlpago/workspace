@@ -10,7 +10,7 @@ struct mossa
 struct Player::Impl
 {
 
-    mossa* history;//history tiene traccia di tutte le mosse
+    mossa* history=nullptr;//history tiene traccia di tutte le mosse
     int Player_Number;
     
 };
@@ -86,10 +86,13 @@ void sistemaRiga(string& rigaDasistemare)//metodo che elimina spazi in eccesso
     }  
 }
 
+bool boardApposto(Player::piece board[8][8]);//mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
+
 Player::Player(int player_nr )
 {
     if(player_nr==1||player_nr==2)
     {
+        
         pimpl->history=new mossa;
         this->pimpl->Player_Number=player_nr;
     }
@@ -126,9 +129,9 @@ Player::~Player()
 Player::Player(const Player& p)
 {
     this->pimpl->Player_Number=p.pimpl->Player_Number;
-    this->pimpl->history=copy(p.pimpl->history);
-    //mossa* newHystory=nullptr;
-    //newHystory=copy(p.pimpl->history);
+    //this->pimpl->history=copy(p.pimpl->history);
+    mossa* newHystory=nullptr;
+    newHystory=copy(p.pimpl->history);
 }
 
 Player& Player::operator=(const Player& p)
@@ -314,11 +317,6 @@ void Player::load_board(const std::string& filename)
         throw player_exception{player_exception::missing_file,str};
    }
 }
-
-bool boardApposto(Player::piece board[8][8]);//mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
-
-
-
 
 void Player::store_board(const std::string& filename, int history_offset) const
 {
