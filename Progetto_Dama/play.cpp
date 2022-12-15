@@ -13,12 +13,30 @@ using std::string;
 int main(int argc, char **argv){
 	
 	int player_nr ;
-	cin>>player_nr;	
+	cin>>player_nr;
+	
 	Player p(player_nr);//decido il player
-	
 	cout << "Playing as player " << player_nr << endl;
-	
-	int round = player_nr; // 1 or 2
+	string board_name ="board_0.txt";
+	p.init_board(board_name);
+	cout<<"ho inizializzato la board "<<board_name<<endl;
+	cout<<"ora carico la board "<<board_name<<endl;
+	p.load_board(board_name); 
+	cout<<"ho fatto la load board \n";
+
+	cout<<"qui sotto stampo quello che ho appena caricato con load_board() \n";
+	for(int i=0;i<7;i++)
+	{
+		for(int j=0;j<7;j++)
+		{
+			cout<<p(i,j,0)<<" ";
+		}
+		cout<<endl;
+	}
+	//Player p2(2);
+	//p2=p;
+
+	/*int round = player_nr; // 1 or 2
 		
 	while(true){
 		
@@ -40,6 +58,7 @@ int main(int argc, char **argv){
 			
 		}
 		
-	}
+	}*/
+	return 0;
 	
 }
