@@ -15,7 +15,7 @@ struct Player::Impl
 };
 
 
-Player::piece CharToPiece(char c)//conclusa
+Player::piece CharToPiece(char c)//conclusa definitivo
 {        
     if(c=='x')
     {
@@ -72,7 +72,7 @@ mossa* copy( mossa* source)//metodo interno per copia, servira per copy costruct
     }
 }
 
-void sistemaRiga(string& rigaDasistemare)//concluso//metodo che elimina spazi in eccesso
+void sistemaRiga(string& rigaDasistemare)//concluso definitivo//metodo che elimina spazi in eccesso
 {//assunto il formato che la riga deve avere sul file
     int i=1,countSpaziEliminati=0;
     while(i<8)
@@ -86,7 +86,7 @@ void sistemaRiga(string& rigaDasistemare)//concluso//metodo che elimina spazi in
     }  
 }
 
-bool boardApposto(Player::piece board[8][8])//concluso mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
+bool boardApposto(Player::piece board[8][8])//concluso definitivo mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
 {
     int NumPedine_o=0,numDame_O=0,NumPedine_x=0,numDame_X=0;
     int rows=0,cools=0;
@@ -143,19 +143,50 @@ bool boardApposto(Player::piece board[8][8])//concluso mi serve per load_board e
             cools++;
             
         }
-                
+        cools=0;      
         rows++;
     }
 
-    if(NumPedine_o+numDame_O>12||NumPedine_x+numDame_X>12||(NumPedine_o+numDame_O==0&&NumPedine_x+numDame_X==0))
+    if((NumPedine_o+numDame_O>12||NumPedine_x+numDame_X>12)||(NumPedine_o+numDame_O==0&&NumPedine_x+numDame_X==0))
     {//se somma delle 2 >12 ci sono troppo pedine in campo; oppure se la somma di entrambe=0 la scacchiera è vuota
         BoardValida=false;
     }
 
     return BoardValida;
 }
-
-Player::Player(int player_nr )//concluso
+char pieceToChar(Player::piece p)//concluso definitivo
+{
+    if(p==Player::e)
+    {
+        return ' ';
+    }
+    else
+    {
+        if(p==Player::o)
+        {
+            return 'o';
+        }
+        else
+        {
+            if(p==Player::O)
+            {
+                return 'O';
+            }
+            else
+            {
+                if(p==Player::x)
+                {
+                    return 'x';
+                }
+                else
+                {
+                    return 'X';
+                }
+            }
+        }
+    }
+}
+Player::Player(int player_nr )//concluso definitivo
 {
     
     if(player_nr==1||player_nr==2)
@@ -172,7 +203,7 @@ Player::Player(int player_nr )//concluso
     }
     
 }
-int countBoard(mossa* hystory)//metodo per "contare" le hystory, mi serve per operator() e storeBoard
+int countBoard(mossa* hystory)//concluso definitivo//metodo per "contare" le hystory, mi serve per operator() e storeBoard
 {
     //cout<<"ciao sono all'inizio"<<endl;
     if(hystory==nullptr)
@@ -198,7 +229,7 @@ Player::~Player()
     delete this->pimpl;
 }
 
-Player::Player(const Player& p)
+Player::Player(const Player& p)//Da rivedere
 {
     
     this->pimpl->Player_Number=p.pimpl->Player_Number;
@@ -211,7 +242,6 @@ Player& Player::operator=(const Player& p)
 {
     if(this!= &p)
     {
-        
         //distuggi hystory this e poi copia quello che ci sta in p
         delete(this->pimpl->history);
         this->pimpl->history=copy(p.pimpl->history);
@@ -220,7 +250,7 @@ Player& Player::operator=(const Player& p)
     return *this;
 }
 
-Player::piece Player::operator()(int r, int c, int history_offset) const
+Player::piece Player::operator()(int r, int c, int history_offset) const//concluso definitivo
 {
     //vedere se esiste la hystory-esima(legge al contrario) e r,c sono validi(0<=r,c<8)
     /*
@@ -285,7 +315,7 @@ Player::piece Player::operator()(int r, int c, int history_offset) const
     
 }
 
-void Player::load_board(const std::string& filename)//
+void Player::load_board(const std::string& filename)//concluso definitivo
 {
     /*
         1) controllare se formato file corretto .txt
@@ -350,20 +380,8 @@ void Player::load_board(const std::string& filename)//
                 }
                 
             }
-            cout<<"ora stampo la board"<<endl;
-            
-            
-            if(this->pimpl->history==nullptr)
-            {
-                cout<<" Load_board()this->history è vuoto"<<endl;
-            }
-            else
-            {
-                cout<<"Load_board() this->history non è vuoto"<<endl;
-            }
-
-            
-            /*for(int i=0;i<8;i++)
+            /*cout<<"ora stampo la board"<<endl;            
+            for(int i=0;i<8;i++)
             {
                 for(int j=0;j<8;j++)
                 {
@@ -406,9 +424,10 @@ void Player::load_board(const std::string& filename)//
    }
 }
 
-void Player::store_board(const std::string& filename, int history_offset) const
+void Player::store_board(const std::string& filename, int history_offset) const//conclusa definitivo
 {
-    int NumBoard=countBoard(this->pimpl->history);
+    mossa* app=this->pimpl->history;
+    int NumBoard=countBoard(app);
     if(NumBoard<history_offset||history_offset<0||NumBoard==0)
     {
         string str="history numero"+to_string(history_offset) +"non esistente";
@@ -417,21 +436,21 @@ void Player::store_board(const std::string& filename, int history_offset) const
     else
     {
         ofstream Myfile(filename);
-        int counter=NumBoard-history_offset;
-        int i=0;
-        mossa* app=this->pimpl->history;
-        while(i!=counter)
+        int counter=NumBoard-history_offset-1;
+        
+        app=this->pimpl->history;
+        while(counter>0)
         {
             app=app->next;
-            i++;
+            counter--;
         }
         for(int i=0;i<8;i++)
         {
             for(int j=0;j<8;j++)
             {//se ritorna e devo scrivere " "
-                if(to_string(app->Campo_gioco[i][j])!="e")
+                if(pieceToChar(app->Campo_gioco[i][j])!='e')
                 {
-                    Myfile<<to_string(app->Campo_gioco[i][j]);
+                    Myfile<<pieceToChar(app->Campo_gioco[i][j]);
                 }
                 else
                 {
@@ -468,11 +487,10 @@ void Player::init_board(const std::string& filename) const//concluso definito
         for(int j=0;j<8;j++)
         {
 
-            if((i==0||i==1||i==2)||(i==5||i==6||i==7))
+            if((i>=0&&i<3)||(i>=5&&i<8))
             {//sono nel 'campo' di player 1 o player 2
             //riempi con x oppure o se riga pari colonna pari o riga dispari colonna dispari(se la somma delle 2 è pari)
                 //siccome sto costruendo con un vettore le posizioni di Player 1/2 sono 'rovesciati'
-                //sono nel campo di player 2 0<=i<=2
                 if((i+j)%2==0)
                 {
                    if(i==0||i==1||i==2)
@@ -638,39 +656,56 @@ bool Player::wins() const
     //se player 1 vedo se non ci sono più o/O con player 2 viceversa
     if(this->pimpl->history!=nullptr)
     {
+        cout<<"wins() sono all'inizio"<<endl;
         mossa* app=this->pimpl->history;
         piece PedineDaControllare;
         piece DameDaControllare;
-        while(app->next!=nullptr)
+        if(app!=nullptr)
         {
-            app=app->next;
+            while(app->next!=nullptr)
+            {
+                app=app->next;
+            }
         }
-
+        if(app==nullptr)
+        {
+            cout<<"wins() app è nullptr"<<endl; 
+        }
+        cout<<"wins() "<<app->Campo_gioco[2][6]<<endl; 
+        cout<<"wins() sono dopo lo scorrimento"<<endl;  
+        cout<<"wins() sono alle selezione delle pedine che devo cercare"<<endl;
         if(this->pimpl->Player_Number==1)
         {//in base al player cerco determinate pedine, se non sono presenti allora vuol dire che ho vinto; se player 1 cerco le o/O e viceversa per player 2
-            PedineDaControllare=o;
-            DameDaControllare=O;
+            PedineDaControllare=Player::o;
+            DameDaControllare=Player::O;
         }
         else
         {
-            PedineDaControllare=x;
-            DameDaControllare=X;
+            PedineDaControllare=Player::x;
+            DameDaControllare=Player::X;
         }
-
-        int i,j=0;
+        cout<<"wins() sono dopo la selezione delle pedine che devo cercare"<<endl;
+        int i=0,j=0;
         bool trovato=false;
-        while(i<=7&&trovato==false)
+        cout<<"wins() sono prima delle revisione riga per riga"<<endl;
+        while(i<8&&trovato==false)
         {
-            while(j<=7&&trovato==false)
+            while(j<8&&trovato==false)
             {
+                //cout<<"wins() sono prima del if sul controllo della tabella"<<endl;
+                
                 if(app->Campo_gioco[i][j]==PedineDaControllare||app->Campo_gioco[i][j]==DameDaControllare)
-                {//se in quella cella è presenta una pedina/dama che sto cercando, allora vuol dire che non ho vinto ancora
+                {
                     trovato=true;
                 }
+                
                 j++;
             }
+            j=0;
             i++;
         }
+        cout<<"wins() ho controllato righe "<<i<<" e colonne "<<j<<endl;
+        cout<<"wins() sono dopo ls revisione riga per riga"<<endl;
         return !trovato;//siccome sto cercando determinate pedine, non trovarle vuol dire che ho vinto(trovato=false ho vinto), altrimenti vuol dire che non ho vinto
     }
     else

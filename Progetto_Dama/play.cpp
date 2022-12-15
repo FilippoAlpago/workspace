@@ -29,13 +29,73 @@ int main(int argc, char **argv){
 	{
 		for(int j=0;j<7;j++)
 		{
-			cout<<p(i,j,0)<<" ";
+			cout<<p(i,j,0);
 		}
 		cout<<endl;
 	}
-	//Player p2(2);
-	//p2=p;
-
+	cout<<"carico la board_2"<<endl;
+	p.load_board("board_2.txt");
+	p.store_board("board_3.txt",0);
+	cout<<"carico la board_3"<<endl;
+	p.load_board("board_3.txt");
+	
+	cout<<"carico la board senza o"<<endl;
+	p.load_board("board_4.txt");
+	/*Player p2(2);
+	p2=p;
+	cout<<"ora stampo p2 \n";
+	for(int i=0;i<7;i++)
+	{
+		for(int j=0;j<7;j++)
+		{
+			cout<<p2(i,j,0);
+		}
+		cout<<endl;
+	}
+	cout<<"ora carico board 2"<<endl;
+	p.load_board("board_2.txt");
+	cout<<"ora stampo board_1 \n";
+	for(int i=0;i<7;i++)
+	{
+		for(int j=0;j<7;j++)
+		{
+			cout<<p(i,j,1);
+		}
+		cout<<endl;
+	}
+	cout<<"qui sotto stampo quello che ho appena caricato con load_board() \n";
+	for(int i=0;i<7;i++)
+	{
+		for(int j=0;j<7;j++)
+		{
+			cout<<p(i,j,0);
+		}
+		cout<<endl;
+	}
+	p.store_board("board_3.txt",0);
+	p.load_board("board_3.txt");
+	cout<<"ora carico board 3"<<endl;
+	p2=p;
+	cout<<"ora ristampo  p2 \n";
+	for(int i=0;i<7;i++)
+	{
+		for(int j=0;j<7;j++)
+		{
+			cout<<p2(i,j,0);
+		}
+		cout<<endl;
+	}*/
+	cout<<" vedo se ho vinto"<<endl;
+	if(p.wins()==true)
+	{
+		cout<<"ho vinto \n";
+	}
+	else
+	{
+		cout<<"non ho vinto"<<endl;
+	}
+	
+	
 	/*int round = player_nr; // 1 or 2
 		
 	while(true){
