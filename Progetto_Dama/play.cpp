@@ -95,7 +95,53 @@ int main(int argc, char **argv){
 		cout<<"non ho vinto"<<endl;
 	}
 	
-	
+	cout<<" vedo se ho perso"<<endl;
+	if(p.loses()==true)
+	{
+		cout<<"ho perso \n";
+	}
+	else
+	{
+		cout<<"non ho perso"<<endl;
+	}
+	cout<<"testo l'altro wins"<<endl;
+	if(p.wins(2)==true)
+	{
+		cout<<"player 2 ha vinto ed io ho perso"<<endl;
+	}
+	else
+	{
+		cout<<" player 2 non ha vinto mentre io non ho perso "<<endl;
+	}
+
+	if(p.wins(1)==true)
+	{
+		cout<<"io ho vinto"<<endl;
+	}
+	else
+	{
+		cout<<"io non ho vinto"<<endl;
+	}
+
+	cout<<"testo l'altro loses"<<endl;
+	if(p.loses(2)==true)
+	{
+		cout<<"player 2 ha perso ed io ho vinto"<<endl;
+	}
+	else
+	{
+		cout<<" player 2 non ha perso mentre io non ho vinto "<<endl;
+	}
+
+	if(p.loses(1)==true)
+	{
+		cout<<"io ho perso"<<endl;
+	}
+	else
+	{
+		cout<<"io non ho perso"<<endl;
+	}
+
 	/*int round = player_nr; // 1 or 2
 		
 	while(true){

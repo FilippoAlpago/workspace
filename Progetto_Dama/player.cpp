@@ -198,7 +198,7 @@ Player::Player(int player_nr )//concluso definitivo
     }
     else
     {
-        string str="player number"+to_string(player_nr) +"non permesso"+"\n";       
+        string str="player number"+to_string(player_nr) +"non permesso \n";       
         throw player_exception{player_exception::err_type::index_out_of_bounds,str};
     }
     
@@ -229,7 +229,7 @@ Player::~Player()
     delete this->pimpl;
 }
 
-Player::Player(const Player& p)//Da rivedere
+Player::Player(const Player& p)
 {
     
     this->pimpl->Player_Number=p.pimpl->Player_Number;
@@ -588,19 +588,24 @@ void Player::move()
           Dame si possono muovere in qualsiasi direzione
         1) scelgo a caso una pedina fra le mie(genero 2 cordinate e cerco in quella posizione) e la muovo(scelgo a caso la mossa??????)
         2) se posso mangiare mangio
-        3) se se arriva a riga=0 allora diventa Dama
+        3) se  arriva a riga=0 allora x diventa X; se arrivo riga=7 o diventa O;
         */
 
         int max=7,min=0,range=max-min+1;
         int rows=rand()%range+min, cools=rand()%range+min;
-        while(app->Campo_gioco[rows][cools]!=pedinaDaMuovere||app->Campo_gioco[rows][cools]!=DamaDaMuovere)
+        while(app->Campo_gioco[rows][cools]!=pedinaDaMuovere&&app->Campo_gioco[rows][cools]!=DamaDaMuovere)
         {//continuo a 'ceracare' finchè non ho trovato una mia pedina/dama
             rows=rand()%range+min;
             cools=rand()%range+min;
         }
-
-        //muovere, prima controllo se posso mangiare(difficile, controllare se adicente c'è una pedina e vedere se nella diagonale dopo c'e uno spazio libero)
-        
+        //esco quando ho trovato qeuello che vogliop muovere
+        //muovere, prima controllo se posso mangiare(difficile, controllare se adicente c'è una pedina(se dama non posso mangiare) e vedere se nella diagonale dopo c'e uno spazio libero)
+        bool pedinaIsDama=false;
+        if(app->Campo_gioco[rows][cools]==DamaDaMuovere)
+        {
+            pedinaIsDama=true;
+        }
+        //creo una funzione per mangiare che mi verifica le posizioni in cui posso mangiare( campo gioco, rows,cools, int dim(dimensione di quanto spazio devo allocare,2 per pedinba e 4 per dama, dato che può mangiare all'indietro))restituisace un vettore con tutte le possibili posizioni in cui posso mangiare
     }
 }
 
@@ -629,11 +634,19 @@ void Player::pop()
     
 }
 
-bool Player::wins(int player_nr) const
+bool Player::wins(int player_nr) const //concluso definitivo
 {
-    if(player_nr!=1||player_nr!=2||this->pimpl->history==nullptr)
+    if((player_nr!=1&&player_nr!=2)||this->pimpl->history==nullptr)
     {
-        string str="history vuota, non posso controllare se hai vinto";
+        string str;
+        if(player_nr!=1&&player_nr!=2)
+        {
+            str="player number"+to_string(player_nr) +"non permesso \n";
+        }
+        else
+        {
+            str="history vuota, non posso controllare se hai perso";
+        }
         throw player_exception{player_exception::index_out_of_bounds,str};
     }
     else
@@ -651,29 +664,28 @@ bool Player::wins(int player_nr) const
     
 }
 
-bool Player::wins() const
+bool Player::wins() const//concluso definitivo
 {
     //se player 1 vedo se non ci sono più o/O con player 2 viceversa
     if(this->pimpl->history!=nullptr)
     {
-        cout<<"wins() sono all'inizio"<<endl;
+        //cout<<"wins() sono all'inizio"<<endl;
         mossa* app=this->pimpl->history;
         piece PedineDaControllare;
         piece DameDaControllare;
-        if(app!=nullptr)
+        
+        while(app->next!=nullptr)
         {
-            while(app->next!=nullptr)
-            {
-                app=app->next;
-            }
+            app=app->next;
         }
-        if(app==nullptr)
+        
+        /*if(app==nullptr)
         {
             cout<<"wins() app è nullptr"<<endl; 
         }
         cout<<"wins() "<<app->Campo_gioco[2][6]<<endl; 
         cout<<"wins() sono dopo lo scorrimento"<<endl;  
-        cout<<"wins() sono alle selezione delle pedine che devo cercare"<<endl;
+        cout<<"wins() sono alle selezione delle pedine che devo cercare"<<endl;*/
         if(this->pimpl->Player_Number==1)
         {//in base al player cerco determinate pedine, se non sono presenti allora vuol dire che ho vinto; se player 1 cerco le o/O e viceversa per player 2
             PedineDaControllare=Player::o;
@@ -684,10 +696,10 @@ bool Player::wins() const
             PedineDaControllare=Player::x;
             DameDaControllare=Player::X;
         }
-        cout<<"wins() sono dopo la selezione delle pedine che devo cercare"<<endl;
+        //cout<<"wins() sono dopo la selezione delle pedine che devo cercare"<<endl;
         int i=0,j=0;
         bool trovato=false;
-        cout<<"wins() sono prima delle revisione riga per riga"<<endl;
+        //cout<<"wins() sono prima delle revisione riga per riga"<<endl;
         while(i<8&&trovato==false)
         {
             while(j<8&&trovato==false)
@@ -704,8 +716,8 @@ bool Player::wins() const
             j=0;
             i++;
         }
-        cout<<"wins() ho controllato righe "<<i<<" e colonne "<<j<<endl;
-        cout<<"wins() sono dopo ls revisione riga per riga"<<endl;
+        /*cout<<"wins() ho controllato righe "<<i<<" e colonne "<<j<<endl;
+        cout<<"wins() sono dopo ls revisione riga per riga"<<endl;*/
         return !trovato;//siccome sto cercando determinate pedine, non trovarle vuol dire che ho vinto(trovato=false ho vinto), altrimenti vuol dire che non ho vinto
     }
     else
@@ -715,16 +727,24 @@ bool Player::wins() const
     }
 }
 
-bool Player::loses(int player_nr) const
+bool Player::loses(int player_nr) const//concluso definitivo
 {
-    if(player_nr!=1||player_nr!=2||this->pimpl->history==nullptr)
+    if((player_nr!=1&&player_nr!=2)||this->pimpl->history==nullptr)
     {
-        string str="history vuota, non posso controllare se hai perso";
+        string str;
+        if(player_nr!=1&&player_nr!=2)
+        {
+            str="player number"+to_string(player_nr) +"non permesso \n";
+        }
+        else
+        {
+            str="history vuota, non posso controllare se hai perso";
+        }
         throw player_exception{player_exception::index_out_of_bounds,str};
     }
     else
     {
-        if((player_nr==1&&player_nr==this->pimpl->Player_Number)||(player_nr==2&&player_nr==this->pimpl->Player_Number))
+        if(player_nr==this->pimpl->Player_Number)
         {//se player_nr coincide con player_Number allora richiamo Player::loses()
             return this->loses();
         }
@@ -736,7 +756,7 @@ bool Player::loses(int player_nr) const
     }
 }
 
-bool Player::loses() const
+bool Player::loses() const //concluso definitivo
 {
     if(this->pimpl->history!=nullptr)
     {
@@ -759,7 +779,7 @@ bool Player::loses() const
             DameDaControllare=O;
         }
 
-        int i,j=0;
+        int i=0,j=0;
         bool trovato=false;
         while(i<=7&&trovato==false)
         {
@@ -771,6 +791,7 @@ bool Player::loses() const
                 }
                 j++;
             }
+            j=0;
             i++;
         }
         return !trovato;
@@ -798,7 +819,7 @@ int Player::recurrence() const
         }
         int count=0;
         mossa* app=this->pimpl->history;
-        int rows,cools;
+        int rows=0,cools=0;
         bool boardUguali=true;
         while (app!=last)
         {
@@ -814,6 +835,7 @@ int Player::recurrence() const
                     }
                     cools++;
                 }  
+                cools=0;
                 rows++; 
             }
             if(boardUguali==true)
