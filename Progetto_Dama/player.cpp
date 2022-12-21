@@ -85,7 +85,27 @@ void sistemaRiga(string& rigaDasistemare)//concluso definitivo//metodo che elimi
         i++;
     }  
 }
-
+int countBoard(mossa* hystory)//concluso definitivo//metodo per "contare" le hystory, mi serve per operator() e storeBoard
+{
+    //cout<<"ciao sono all'inizio"<<endl;
+    if(hystory==nullptr)
+    {
+        //cout<<"sono dentro if"<<endl;
+        return 0;
+    }
+    else
+    {
+        //cout<<"sono nell'else"<<endl;
+        int i=1;
+        while(hystory->next!=nullptr)
+        {
+            //cout<<i<<endl;
+            i++;
+            hystory=hystory->next;
+        }
+        return i; 
+    }
+}
 bool boardApposto(Player::piece board[8][8])//concluso definitivo mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
 {
     int NumPedine_o=0,numDame_O=0,NumPedine_x=0,numDame_X=0;
@@ -186,6 +206,501 @@ char pieceToChar(Player::piece p)//concluso definitivo
         }
     }
 }
+
+int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim, int player_nr)
+{//ogni due posizioni del vettore che ritorno c'è la coppia riga-colonna in cui potrei mangiare; se dim==0 restituisco nullptr, altrimenti se non posso mangiare scrivo -1 nelle 2 posizioni del vettore;
+    if(dim==0)
+    {
+        return nullptr;
+    }
+    else
+    {
+        Player::piece pedinaDaMangiare,DamaDaMangiare;
+        if(player_nr==1)
+        {
+            pedinaDaMangiare=Player::piece::o;
+            DamaDaMangiare=Player::piece::O;
+        }
+        else
+        {
+            pedinaDaMangiare=Player::x;
+            pedinaDaMangiare=Player::X;
+        }
+        int* posValid= (int*) malloc((dim*2) *sizeof(int));//*2 perche perche le posizioni in cui posso mangiare sono a coppie
+        bool eatWithDama=true;
+        if(dim==2)
+        {//ho 2 possibilità di mangiare, quindi sono una pedina; se è 4 allora è una dama, perchè puo magiare anche indietro
+            eatWithDama=false;
+        }
+        bool bassoSX=true,bassoDX=true,altoSX=true,altoDX=true;
+        
+        if(player_nr==1&&eatWithDama==false)
+        {//dato che sono player_1 mangio verso l'alto
+            bassoDX=false;
+            bassoSX=false;
+            /*  
+            se pedina si trova in cool=0,1 allora non ha senso controllare in altoSX
+            se pedina si trova in cool=6,7 allora non ha senso controllare in altoDX
+            se pedina si trova in riga=0,1 non ha senso controllare in altoSX e altoDX
+            */
+           if(rows==0||rows==1)
+           {
+                altoDX=false;
+                altoSX=false;
+           }
+           else
+           {
+                if(cool==0||cool==1)
+                {
+                    altoSX=false;
+                }
+                else
+                {
+                    if(cool==6||cool==7)
+                    {
+                        altoDX=false;
+                    }
+                }
+           } 
+        }
+        else if(player_nr==2&&eatWithDama==false)
+        {//dato che sono player2 mangio verso il basso
+            
+            altoDX=false;
+            altoSX=false;
+            /*  
+            se pedina si trova in cool=0,1 allora non ha senso controllare in bassoSX
+            se pedina si trova in cool=6,7 allora non ha senso controllare in bassoDX
+            se pedina si trova in riga=6,7 non ha senso controllare in bassoSX e bassoDX
+            */
+            if(rows==6||rows==7)
+            {
+                bassoDX=false;
+                bassoSX=false;
+            }
+            else
+            {
+                if(cool==0||cool==1)
+                {
+                    bassoSX=false;
+                }
+                else
+                {
+                    if(cool==6||cool==7)
+                    {
+                        bassoDX=false;
+                    }
+                }
+            }
+        }
+        else if(eatWithDama==true)
+        {//non importa che giocatore sono, ma verso dove posso mangiare; il giocatore importa per stabilire quali pedine sono le nemiche
+            if(cool==0||cool==1)
+            {
+                if(rows==0||rows==1)
+                {//controllo solo bassoDX
+                    altoDX=false;
+                    altoSX=false;
+                    bassoSX=false;
+                }
+                else
+                {
+                    if(rows=6||rows==7)
+                    {//controllo solo altoDX
+                        altoSX=false;
+                        bassoDX=false;
+                        bassoSX=false;
+                    }
+                    else
+                    {//controllo solo bassoDX e altoDX
+                        altoSX=false;
+                        bassoSX=false;
+                    }
+                }
+            }
+            else if (cool==6||cool==7)
+            {
+                if(rows==0||rows==1)
+                {//controllo solo bassoSX
+                    altoDX=false;
+                    altoSX=false;
+                    bassoDX=false;
+                }
+                else
+                {
+                    if(rows==6||rows==7)
+                    {//controllo solo altoSX
+                        bassoDX=false;
+                        bassoSX=false;
+                        altoDX=false;
+                    }
+                    else
+                    {//controllo solo bassoDX e altoDX
+                        bassoDX=false;
+                        altoDX=false;
+                    }
+                }
+            }
+            else if (cool>=2&&cool<=5)
+            {
+                if(rows==0||rows==1)
+                {
+                    altoDX=false;
+                    altoSX=false;
+                }
+                else
+                {
+                    if(rows==6||rows==7)
+                    {
+                        bassoDX=false;
+                        bassoSX=false;
+                    }
+                }
+            }            
+        }
+        //in base ai flag controllo; devo stabilire quali pedine siano le nemiche
+        int i=0;
+        if(altoDX==true)//abbaso riga ed aumento colonna
+        {// se in altoDx c'è una pedina avversaria e nella diagonale dopo è libero(c'è 'e')-> posso mangiare
+            if(eatWithDama==false)
+            {//non devo mangiare con una dama, se nella digonale c'è una dama non posso mangiare, perchè io sono una pedina
+                
+                if(board[rows-1][cool+1]!=DamaDaMangiare)
+                {//se non è  dama devo controllare se c'è una pedina nemica
+                    if(board[rows-1][cool+1]==pedinaDaMangiare)
+                    {
+                        if(board[rows-2][cool+2]==Player::piece::e)
+                        {//se dopo c'è spazio allora posso aggiungere le posizioni
+                            posValid[i]=rows-2;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=cool+2;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        else
+                        {//dopo  non c'è spazio. quindi non posso mangiare
+                            posValid[i]=-1;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=-1;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        
+                    }
+                    else
+                    {//dopo  c'e una dama o uno spazio, quindi non posso mangiare
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {//dopo c'è dama. quindi non posso mangiare
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }
+            else
+            {//devo mangiare con una dama, può amngiare chiunque, basta che sia nemico
+                if(board[rows-1][cool+1]==pedinaDaMangiare||board[rows-1][cool+1]==DamaDaMangiare)
+                {
+                    if(board[rows-2][cool+2]==Player::piece::e)
+                    {
+                        posValid[i]=rows-2;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=cool+2;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                    else
+                    {
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }
+        }
+
+        if (altoSX==true)//diminuisci riga e colonna
+        {
+            if(eatWithDama==false)
+            {//non devo mangiare con una dama, se nella digonale c'è una dama non posso mangiare, perchè io sono una pedina
+                
+                if(board[rows-1][cool-1]!=DamaDaMangiare)
+                {//se non è  dama devo controllare se c'è una pedina nemica
+                    if(board[rows+1][cool+1]==pedinaDaMangiare)
+                    {
+                        if(board[rows-2][cool-2]==Player::piece::e)
+                        {//se dopo c'è spazio allora posso aggiungere le posizioni
+                            posValid[i]=rows-2;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=cool-2;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        else
+                        {//dopo  non c'è spazio. quindi non posso mangiare
+                            posValid[i]=-1;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=-1;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        
+                    }
+                    else
+                    {//dopo  c'e una dama o uno spazio, quindi non posso mangiare
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {//dopo c'è dama. quindi non posso mangiare
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }
+            else
+            {//devo mangiare con una dama, può manngiare chiunque, basta che sia nemico
+                if(board[rows-1][cool-1]==pedinaDaMangiare||board[rows-1][cool-1]==DamaDaMangiare)
+                {
+                    if(board[rows-2][cool-2]==Player::piece::e)
+                    {
+                        posValid[i]=rows-2;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=cool-2;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                    else
+                    {
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }
+        }
+
+        if (bassoDX==true)//aumento riga e colonna
+        {
+            if(eatWithDama==false)
+            {//non devo mangiare con una dama, se nella digonale c'è una dama non posso mangiare, perchè io sono una pedina
+                
+                if(board[rows+1][cool+1]!=DamaDaMangiare)
+                {//se non è  dama devo controllare se c'è una pedina nemica
+                    if(board[rows+1][cool+1]==pedinaDaMangiare)
+                    {
+                        if(board[rows+2][cool+2]==Player::piece::e)
+                        {//se dopo c'è spazio allora posso aggiungere le posizioni
+                            posValid[i]=rows+2;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=cool+2;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        else
+                        {//dopo  non c'è spazio. quindi non posso mangiare
+                            posValid[i]=-1;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=-1;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        
+                    }
+                    else
+                    {//dopo  c'e una dama o uno spazio, quindi non posso mangiare
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {//dopo c'è dama. quindi non posso mangiare
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }
+            else
+            {//devo mangiare con una dama, può amngiare chiunque, basta che sia nemico
+                if(board[rows+1][cool+1]==pedinaDaMangiare||board[rows+1][cool+1]==DamaDaMangiare)
+                {
+                    if(board[rows+2][cool+2]==Player::piece::e)
+                    {
+                        posValid[i]=rows+2;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=cool+2;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                    else
+                    {
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }    
+        }
+
+        if (bassoSX==true)//aumento riga diminuisco colonna
+        {
+            if(eatWithDama==false)
+            {//non devo mangiare con una dama, se nella digonale c'è una dama non posso mangiare, perchè io sono una pedina
+                
+                if(board[rows+1][cool-1]!=DamaDaMangiare)
+                {//se non è  dama devo controllare se c'è una pedina nemica
+                    if(board[rows+1][cool-1]==pedinaDaMangiare)
+                    {
+                        if(board[rows+2][cool-2]==Player::piece::e)
+                        {//se dopo c'è spazio allora posso aggiungere le posizioni
+                            posValid[i]=rows+2;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=cool-2;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        else
+                        {//dopo  non c'è spazio. quindi non posso mangiare
+                            posValid[i]=-1;
+                            cout<<"move() riga "<<posValid[i];
+                            i++;
+                            posValid[i]=-1;
+                            cout<<"move() colonna "<<posValid[i]<<endl;
+                            i++;
+                        }
+                        
+                    }
+                    else
+                    {//dopo  c'e una dama o uno spazio, quindi non posso mangiare
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {//dopo c'è dama. quindi non posso mangiare
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }
+            else
+            {//devo mangiare con una dama, può mangiare chiunque, basta che sia nemico
+                if(board[rows+1][cool-1]==pedinaDaMangiare||board[rows+1][cool+1]==DamaDaMangiare)
+                {
+                    if(board[rows+2][cool-2]==Player::piece::e)
+                    {
+                        posValid[i]=rows+2;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=cool-2;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                    else
+                    {
+                        posValid[i]=-1;
+                        cout<<"move() riga "<<posValid[i];
+                        i++;
+                        posValid[i]=-1;
+                        cout<<"move() colonna "<<posValid[i]<<endl;
+                        i++;
+                    }
+                }
+                else
+                {
+                    posValid[i]=-1;
+                    cout<<"move() riga "<<posValid[i];
+                    i++;
+                    posValid[i]=-1;
+                    cout<<"move() colonna "<<posValid[i]<<endl;
+                    i++;
+                }
+            }
+        }
+        //se i flag sono false devo mettere le posizioni a -1; probabile soluzione e fare new di int->vedi stackOverflow
+        return posValid;
+    }   
+}
+
+
 Player::Player(int player_nr )//concluso definitivo
 {
     
@@ -203,27 +718,7 @@ Player::Player(int player_nr )//concluso definitivo
     }
     
 }
-int countBoard(mossa* hystory)//concluso definitivo//metodo per "contare" le hystory, mi serve per operator() e storeBoard
-{
-    //cout<<"ciao sono all'inizio"<<endl;
-    if(hystory==nullptr)
-    {
-        //cout<<"sono dentro if"<<endl;
-        return 0;
-    }
-    else
-    {
-        //cout<<"sono nell'else"<<endl;
-        int i=1;
-        while(hystory->next!=nullptr)
-        {
-            //cout<<i<<endl;
-            i++;
-            hystory=hystory->next;
-        }
-        return i; 
-    }
-}
+
 Player::~Player()
 {
     delete this->pimpl;
@@ -476,7 +971,7 @@ void Player::store_board(const std::string& filename, int history_offset) const/
     }
 }
 
-void Player::init_board(const std::string& filename) const//concluso definito
+void Player::init_board(const std::string& filename) const//concluso definitivo
 {//create and store an initial board to file
     //Player 1 is the one starting in the low row values (rows 0,1,2), 
 	//player 2 starts in the high row values (rows 5,6,7).
@@ -493,7 +988,7 @@ void Player::init_board(const std::string& filename) const//concluso definito
                 //siccome sto costruendo con un vettore le posizioni di Player 1/2 sono 'rovesciati'
                 if((i+j)%2==0)
                 {
-                   if(i==0||i==1||i==2)
+                   if(i>=0&&i<=2)
                    {
                         if(j==7)
                         {
@@ -504,7 +999,7 @@ void Player::init_board(const std::string& filename) const//concluso definito
                             Myfile<<"o ";
                         }
                    }
-                    else if(i==5||i==6||i==7)
+                    else if(i>=5&&i<=7)
                    {
                         if(j==7&&i==7)
                         {
@@ -575,13 +1070,13 @@ void Player::move()
         piece pedinaDaMuovere,DamaDaMuovere;
         if(this->pimpl->Player_Number==1)
         {
-            pedinaDaMuovere=x;
-            DamaDaMuovere=X;
+            pedinaDaMuovere=Player::x;
+            DamaDaMuovere=Player::X;
         }
         else
         {
-            pedinaDaMuovere=o;
-            DamaDaMuovere=O;
+            pedinaDaMuovere=Player::o;
+            DamaDaMuovere=Player::O;
         }
         /*x sposto con --di riga e ++ di colonna oppure -- di riga e -- colonna; 
           o sposrto con ++ riga e ++ colonna oppure -- colonna e ++ riga
@@ -590,22 +1085,56 @@ void Player::move()
         2) se posso mangiare mangio
         3) se  arriva a riga=0 allora x diventa X; se arrivo riga=7 o diventa O;
         */
-
+        
         int max=7,min=0,range=max-min+1;
-        int rows=rand()%range+min, cools=rand()%range+min;
-        while(app->Campo_gioco[rows][cools]!=pedinaDaMuovere&&app->Campo_gioco[rows][cools]!=DamaDaMuovere)
+        srand((unsigned) time(NULL));
+        int rows=rand()%range+min,cools=rand()%range+min;
+        bool ho_trovato=false;
+        while(ho_trovato==false)//rifare la ricerca della pedina da muovere
         {//continuo a 'ceracare' finchè non ho trovato una mia pedina/dama
-            rows=rand()%range+min;
-            cools=rand()%range+min;
+            if(app->Campo_gioco[rows][cools]==pedinaDaMuovere)
+            {
+                ho_trovato=true;
+            }
+            else if(app->Campo_gioco[rows][cools]==DamaDaMuovere)
+            {
+                ho_trovato=true;
+            }
+            else
+            {
+                rows=(rand()%8);
+                cools=(rand()%8);
+            }
+            
+            //cout<<rows<<","<<cools<<endl;
+
         }
+        cout<<"move() ho deciso di muovere "<<pieceToChar(app->Campo_gioco[rows][cools])<<" in posizione "<<rows<<","<<cools<<endl;
         //esco quando ho trovato qeuello che vogliop muovere
         //muovere, prima controllo se posso mangiare(difficile, controllare se adicente c'è una pedina(se dama non posso mangiare) e vedere se nella diagonale dopo c'e uno spazio libero)
         bool pedinaIsDama=false;
+        int possibiliPosizioniIncuiMangiare=2;
         if(app->Campo_gioco[rows][cools]==DamaDaMuovere)
         {
             pedinaIsDama=true;
+            possibiliPosizioniIncuiMangiare=4;
         }
-        //creo una funzione per mangiare che mi verifica le posizioni in cui posso mangiare( campo gioco, rows,cools, int dim(dimensione di quanto spazio devo allocare,2 per pedinba e 4 per dama, dato che può mangiare all'indietro))restituisace un vettore con tutte le possibili posizioni in cui posso mangiare
+        cout<<" move() ora chiamo la funzione che mi ritorna le possibili posizioni in cui mangiare"<<endl;
+        int* posizioniPossibili=eatPositions(app->Campo_gioco,rows,cools,possibiliPosizioniIncuiMangiare,this->pimpl->Player_Number);
+        if(posizioniPossibili==nullptr)
+        {
+            cout<<"move() nessuna mossa possibile in cui mangiare"<<endl;
+        }
+        else
+        {//se riga=6 e colonna=6 da errori, probabilmente perchè istanzio ma non riempio; guardare funzione eatPosition;
+            cout<<"move() posso mangiare in qualche posizione"<<endl;
+            possibiliPosizioniIncuiMangiare=possibiliPosizioniIncuiMangiare*2;
+            for(int i=0;i<possibiliPosizioniIncuiMangiare;i=i+2)
+            {
+                cout<<"move() posso mangiare in riga "<<posizioniPossibili[i]<<" colonna "<<posizioniPossibili[i+1]<<endl;
+            }
+        }
+        //creo una funzione per mangiare che mi verifica le posizioni in cui posso mangiare( campo gioco, rows,cools, int dim(dimensione di quanto spazio devo allocare,2 per pedina e 4 per dama, dato che può mangiare all'indietro;alloco anche a seconda di dove si trova), player_nr per capire in che posizione devo mangiare)restituisace un vettore con tutte le possibili posizioni in cui posso mangiare
     }
 }
 
@@ -625,6 +1154,7 @@ void Player::pop()
             app=app->next;
         }
         delete(app);
+        app=nullptr;
     }
     else
     {
