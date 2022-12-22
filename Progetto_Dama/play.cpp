@@ -155,6 +155,16 @@ int main(int argc, char **argv){
 	cout<<"ora muovo"<<endl;
 	p.move();
 	cout<<"ho mosso"<<endl;
+	cout<<"board dopo aver mosso"<<endl;
+	for(int i=0;i<8;i++)
+	{
+		for(int j=0;j<8;j++)
+		{
+			cout<<p(i,j,0);
+		}
+		cout<<endl;
+	}
+
 	/*int round = player_nr; // 1 or 2
 		
 	while(true){

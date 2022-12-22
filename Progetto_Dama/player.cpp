@@ -1105,11 +1105,15 @@ void Player::move()
     }
     else
     {
+
+        
+
         mossa* app=this->pimpl->history;
         while (app->next!=nullptr)
         {//ultima hystory
             app=app->next;
         }
+
         piece pedinaDaMuovere,DamaDaMuovere;
         if(this->pimpl->Player_Number==1)
         {
@@ -1128,7 +1132,18 @@ void Player::move()
         2) se posso mangiare mangio
         3) se  arriva a riga=0 allora x diventa X; se arrivo riga=7 o diventa O;
         */
-        
+
+        //creo una copia della board
+        Player::piece nuovaBoard[8][8];
+        for(int i=0;i<8;i++)
+        {
+            for(int j=0;j<8;j++)
+            {
+                nuovaBoard[i][j]=app->Campo_gioco[i][j];
+            }
+        }
+
+
         int max=7,min=0,range=max-min+1;
         srand((unsigned) time(NULL));
         int rows=rand()%range+min,cools=rand()%range+min;
@@ -1161,23 +1176,83 @@ void Player::move()
             pedinaIsDama=true;
             possibiliPosizioniIncuiMangiare=4;
         }
-        cout<<" move() ora chiamo la funzione che mi ritorna le possibili posizioni in cui mangiare"<<endl;
-        int* posizioniPossibili=eatPositions(app->Campo_gioco,rows,cools,possibiliPosizioniIncuiMangiare,this->pimpl->Player_Number);
-        bool possoMangiare=true;
-        cout<<"move() posso mangiare in qualche posizione"<<endl;
-        possibiliPosizioniIncuiMangiare=possibiliPosizioniIncuiMangiare*2;
+        
+        int* posPossibili=eatPositions(nuovaBoard,rows,cools,possibiliPosizioniIncuiMangiare,this->pimpl->Player_Number);
+        int iterator=possibiliPosizioniIncuiMangiare*2;
         /*ora che ho le posizioni devo:
             -vedere se posso mangiare(se tutte le coppie sono diverse da -1), altrimenti non posso mangiare
             -se una coppia è -1, allora in qualche modo devo scegliere altro fuorchè quella coppia
         */
-        int i=0;
+        int i=0,posInvalidePerMangiare=0;
 
-        while(i<possibiliPosizioniIncuiMangiare)
+        while(i<iterator)
         {
-            i=i+2;
+            
+            if(posPossibili[i]==-1&&posPossibili[i+1]==-1)
+            {
+                posInvalidePerMangiare++;
+            }
+            i=i+2;//'conto' a coppie di 2
         }
+        
+        ho_trovato=false;
+        int rowsInCuiMangero=0,coolInCuimangero=0;
+        int ArrayApp[4]={0,2,4,6}, posRandom=ArrayApp[rand()%possibiliPosizioniIncuiMangiare];
+        
+        if(posInvalidePerMangiare!=2&&posInvalidePerMangiare!=4)
+        {//vuol dire che posInvalidePerMangiare non coincide con il totale delle mosse possibili-> è possibile mangiare in qualche posizione
+            while(ho_trovato==false)
+            {//randomizzo la posizione di scelta, se la coppia è diversa da -1 allora scelgo quella
+            
+                if(posPossibili[posRandom]!=-1)
+                {
+                    if(posPossibili[posRandom+1]!=-1)
+                    {
+                        ho_trovato=true;
+                        rowsInCuiMangero=posPossibili[posRandom], coolInCuimangero=posPossibili[posRandom+1];
 
-       Player::piece nuovaBoard[8][8];
+                    }   
+                }
+                posRandom=ArrayApp[rand()%possibiliPosizioniIncuiMangiare];   
+            }
+            
+            cout<<"move() ho decisom che mangerò in posizione "<<rowsInCuiMangero<<","<<coolInCuimangero<<endl;
+            //ora posso effetivamente mangiare e aggiungere la board risultante alla hystory
+            if(rowsInCuiMangero==0&&pedinaIsDama==false&&this->pimpl->Player_Number==1)
+            {//se muovo in riga 0, non sono una dama e le mie pedine sono x-> quella pedina che muovo deve diventare una dama X
+                nuovaBoard[rows][cools]==Player::piece::X;
+            }
+
+            if(rowsInCuiMangero==7&&pedinaIsDama==false&&this->pimpl->Player_Number==2)
+            {//se muovo in riga 7, non sono una dama e le mie pedine sono o -> quella pedina che muovo deve diventare una dama O
+                nuovaBoard[rows][cools]==Player::piece::O;
+            }
+            
+            nuovaBoard[rowsInCuiMangero][coolInCuimangero]=nuovaBoard[rows][cools];//sposto la mia pedina
+            nuovaBoard[(rowsInCuiMangero+rows)/2][(coolInCuimangero+cools)/2]=Player::piece::e;//dove stava la pedina che ho mangiato ora c'è spazio
+            
+            app->next=nullptr;
+            cout<<"move() sono dopo aver messo app->next a nullptr"<<endl;
+            app->next=new mossa;
+            cout<<"move() sono dopo aver crato una nuova mossa"<<endl;
+            app->next->next=nullptr;
+            for(int i=0;i<8;i++)
+            {
+                for(int j=0;j<8;j++)
+                {
+                    app->Campo_gioco[i][j]=nuovaBoard[i][j];
+                }
+            }
+            //ho finito di muovere
+        }
+        else
+        {//non posso mangiare, quindi muovo e basta
+
+        }
+        
+
+
+        
     }
 }
 
