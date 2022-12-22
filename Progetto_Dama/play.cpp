@@ -39,8 +39,8 @@ int main(int argc, char **argv){
 	cout<<"carico la board_3"<<endl;
 	p.load_board("board_3.txt");
 	
-	//cout<<"carico la board senza o"<<endl;
-	//p.load_board("board_4.txt");
+	cout<<"carico la board senza o"<<endl;
+	p.load_board("board_4.txt");
 	/*Player p2(2);
 	p2=p;
 	cout<<"ora stampo p2 \n";
@@ -142,8 +142,16 @@ int main(int argc, char **argv){
 		cout<<"io non ho perso"<<endl;
 	}
 	cout<<"ora faccio la pop dell'ultima scahcchiera"<<endl;
-	p.pop();
+	//p.pop();
 	cout<<"ho fatto la pop"<<endl;
+	for(int i=0;i<8;i++)
+	{
+		for(int j=0;j<8;j++)
+		{
+			cout<<p(i,j,0);
+		}
+		cout<<endl;
+	}
 	cout<<"ora muovo"<<endl;
 	p.move();
 	cout<<"ho mosso"<<endl;
