@@ -25,9 +25,10 @@ int main(int argc, char **argv){
 	cout<<"ho fatto la load board \n";
 
 	cout<<"qui sotto stampo quello che ho appena caricato con load_board() \n";
-	for(int i=0;i<8;i++)
+	int i=0,j=0;
+	for(i=0;i<8;i++)
 	{
-		for(int j=0;j<8;j++)
+		for(j=0;j<8;j++)
 		{
 			cout<<p(i,j,0);
 		}
@@ -141,7 +142,7 @@ int main(int argc, char **argv){
 	{
 		cout<<"io non ho perso"<<endl;
 	}
-	cout<<"ora faccio la pop dell'ultima scahcchiera"<<endl;
+	//cout<<"ora faccio la pop dell'ultima scahcchiera"<<endl;
 	//p.pop();
 	cout<<"ho fatto la pop"<<endl;
 	for(int i=0;i<8;i++)
@@ -156,15 +157,17 @@ int main(int argc, char **argv){
 	p.move();
 	cout<<"ho mosso"<<endl;
 	cout<<"board dopo aver mosso"<<endl;
-	for(int i=0;i<8;i++)
+	
+	for(i=0;i<8;i++)
 	{
-		for(int j=0;j<8;j++)
+		for(j=0;j<8;j++)
 		{
 			cout<<p(i,j,0);
 		}
 		cout<<endl;
 	}
 
+	
 	/*int round = player_nr; // 1 or 2
 		
 	while(true){
