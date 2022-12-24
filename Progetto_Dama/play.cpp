@@ -191,6 +191,8 @@ int main(int argc, char **argv){
 		}
 		
 	}*/
+	//Player P(2);
+
 	return 0;
 	
 }
