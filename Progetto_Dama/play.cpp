@@ -42,6 +42,7 @@ int main(int argc, char **argv){
 	
 	cout<<"carico la board senza o"<<endl;
 	p.load_board("board_4.txt");
+	
 	/*Player p2(2);
 	p2=p;
 	cout<<"ora stampo p2 \n";
@@ -166,7 +167,20 @@ int main(int argc, char **argv){
 		}
 		cout<<endl;
 	}
-
+	cout<<endl;
+	cout<<"seconda move"<<endl;
+	p.store_board("board_5.txt",0);
+	p.move();
+	for(i=0;i<8;i++)
+	{
+		for(j=0;j<8;j++)
+		{
+			cout<<p(i,j,0);
+		}
+		cout<<endl;
+	}
+	
+	p.store_board("board_6.txt",0);
 	
 	/*int round = player_nr; // 1 or 2
 		

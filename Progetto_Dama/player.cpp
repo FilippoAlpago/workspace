@@ -205,7 +205,7 @@ char pieceToChar(Player::piece p)//concluso definitivo
     }
 }
 
-int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim, int player_nr)//conclusa definitiva
+int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)//concluso definitivo
 {//ogni due posizioni del vettore che ritorno c'è la coppia riga-colonna in cui potrei mangiare; se dim==0 restituisco nullptr, altrimenti se non posso mangiare scrivo -1 nelle 2 posizioni del vettore;
     if(dim==0)
     {
@@ -214,15 +214,18 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim, int pla
     else
     {
         Player::piece pedinaDaMangiare,DamaDaMangiare;
-        if(player_nr==1)
-        {
+        int player_nr=0;
+        if(board[rows][cool]==Player::piece::x||board[rows][cool]==Player::piece::X)
+        {//se la pedina che ho passato è x o X allora io sono player 1-> le mie nemiche sono o/O
             pedinaDaMangiare=Player::piece::o;
             DamaDaMangiare=Player::piece::O;
+            player_nr=1;
         }
-        else
-        {
+        else if(board[rows][cool]!=Player::piece::e)
+        {//altrimenti io sono player 2->le mie nemiche sono x/X
             pedinaDaMangiare=Player::x;
             pedinaDaMangiare=Player::X;
+            player_nr=2;
         }
         int *posValid=new int[dim*2];
         //*2 perche perche le posizioni in cui posso mangiare sono a coppie
@@ -870,10 +873,21 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim, int pla
     }   
 }
 
-int* movePositions(Player::piece board[8][8],int rows, int cool, int dim, int player_nr)//concluso definitivo
+int* movePositions(Player::piece board[8][8],int rows, int cool, int dim)//
 {
     int *posValid=new int[dim*2];
-    
+    Player::piece pedinaDaMangiare,DamaDaMangiare;
+    int player_nr=0;
+        if(board[rows][cool]==Player::piece::x||board[rows][cool]==Player::piece::X)
+        {//se la pedina che ho passato è x o X allora io sono player 1-> le mie nemiche sono o/O
+            player_nr=1;
+        }
+        else if(board[rows][cool]!=Player::piece::e)
+        {//altrimenti io sono player 2->le mie nemiche sono x/X
+
+            player_nr=2;
+        }
+
     bool eatWithDama=true;
     if(dim==2)
     {//ho 2 possibilità di muovere, quindi sono una pedina; se è 4 allora è una dama, perchè puo muovere anche indietro
@@ -888,42 +902,53 @@ int* movePositions(Player::piece board[8][8],int rows, int cool, int dim, int pl
             bassoDX=false;
             bassoSX=false;
         }
-        else
-        {
-            if(rows==0)
-            {//no alto
-                altoDX=false;
-                altoSX=false;
-            }
-            else
-            {
-                if(cool==0)
-                {//no a SX
-                    altoSX=false;
-                    bassoSX=false;
-                }
-                else if (cool==7)
-                {//no a DX
-                    altoDX=false;
-                    bassoDX=false;
-                }
-                
-            }
+        else if(rows==0)
+        {//no alto
+            altoDX=false;
+            altoSX=false;   
+        }
+
+        if(cool==0)
+        {//no a SX
+            altoSX=false;
+            bassoSX=false;
+        }
+        else if (cool==7)
+        {//no a DX
+            altoDX=false;
+            bassoDX=false;
         }
     }
-    else if (player_nr==1||player_nr==2)
-    {
+    else if (player_nr==1)
+    {//no in basso
+        
+        bassoDX=false;
+        bassoSX=false;
+        
         if(cool==7)
         {//no dx
             altoDX=false;
-            bassoDX=false;
         }
         else
         {
             if(cool==0)
             {//no sx
                 altoSX=false;
-                bassoSX=false;
+            }
+        }
+    }else if(player_nr==2)
+    {
+        altoDX=false;
+        altoSX=false;
+        if(cool==7)
+        {//no dx
+            altoDX=false;
+        }
+        else
+        {
+            if(cool==0)
+            {//no sx
+                altoSX=false;
             }
         }
     }
@@ -1066,6 +1091,27 @@ int* movePositions(Player::piece board[8][8],int rows, int cool, int dim, int pl
     }
 
     return posValid;  
+}
+
+bool boardEquals(Player::piece B1[8][8],Player::piece B2[8][8])
+{
+    bool equals=true;
+    int rows=0,cools=0;
+    while(rows<8&&equals==true)
+    {
+        while(cools<8&&equals==true)
+        {
+            if(B1[rows][cools]!=B2[rows][cools])
+            {
+                equals=false;
+            }
+            cools++;
+        }
+        cools=0;
+        rows++;
+    }
+    
+    return equals;
 }
 
 Player::Player(int player_nr )//concluso definitivo
@@ -1428,10 +1474,9 @@ void Player::init_board(const std::string& filename) const//concluso definitivo
     Myfile.close();
 }
 
-void Player::move()
+void Player::move()//concluso definitivo
 {//se hystori vuota errore
-//prendi la board più recente in history, fai una mossa e poi metti in history la board post-mossa. la board risultante deve essere la board precedente più una mossa 'valida'
-//se nessuna mossa allora perdo 
+
     if(this->pimpl->history==nullptr)
     {
         string str="history vuota, non posso muovere";
@@ -1504,7 +1549,7 @@ void Player::move()
             possibbiliSopostamenti=4;
         }
        
-        int* EatposPossibili=eatPositions(nuovaBoard,rows,cools,possibbiliSopostamenti,this->pimpl->Player_Number);
+        int* EatposPossibili=eatPositions(nuovaBoard,rows,cools,possibbiliSopostamenti);
         
         int iterator=possibbiliSopostamenti*2;
         /*ora che ho le posizioni devo:
@@ -1529,6 +1574,7 @@ void Player::move()
         
         if(posInvalidePerMangiare!=2&&posInvalidePerMangiare!=4)
         {//vuol dire che posInvalidePerMangiare non coincide con il totale delle mosse possibili-> è possibile mangiare in qualche posizione
+            
             while(ho_trovato==false)
             {//randomizzo la posizione di scelta, se la coppia è diversa da -1 allora scelgo quella
             
@@ -1554,7 +1600,7 @@ void Player::move()
             {//se muovo in riga 7, non sono una dama e le mie pedine sono o -> quella pedina che muovo deve diventare una dama O
                 nuovaBoard[rows][cools]=Player::piece::O;
             }
-            
+
             nuovaBoard[rowsInCuiMangero][coolInCuimangero]=nuovaBoard[rows][cools];//sposto la mia pedina
             nuovaBoard[(rowsInCuiMangero+rows)/2][(coolInCuimangero+cools)/2]=Player::piece::e;//dove stava la pedina che ho mangiato ora c'è spazio
             nuovaBoard[rows][cools]=Player::piece::e;
@@ -1578,19 +1624,19 @@ void Player::move()
             
             i=0;
             int posInvalidPerMuovere=0,rowInCuiMuovero=0,coolInCuiMuovero=0;
-            int* movePosPossibili=movePositions(nuovaBoard,rows,cools,possibbiliSopostamenti,this->pimpl->Player_Number);
+            int* movePosPossibili=movePositions(nuovaBoard,rows,cools,possibbiliSopostamenti);
             while(i<iterator)
             {
                 if(movePosPossibili[i]==-1&&movePosPossibili[i+1]==-1)
                 {
                     posInvalidPerMuovere++;
-                }  
+                } 
                 i=i+2;//'conto' a coppie di 2
             }
-            
             //se posinalidPerMuovere==4o ( non posso muovere)
-            if(posInvalidPerMuovere!=2&&posInvalidePerMangiare!=4)
+            if(posInvalidPerMuovere!=2&&posInvalidPerMuovere!=4)
             {//posso muovere
+                
                 while(ho_trovato==false)
                 {//randomizzo la posizione di scelta, se la coppia è diversa da -1 allora scelgo quella
             
@@ -1632,6 +1678,7 @@ void Player::move()
             }
             else
             {//non posso muoverer quindi carico una copia della board è basta;
+                
                 app->next=new mossa;
                 app->next->next=nullptr;
                 for(int i=0;i<8;i++)
@@ -1649,10 +1696,71 @@ void Player::move()
 
 bool Player::valid_move() const
 {
+    /*
+        1)se solo 1 board o nessuma errore
+        2)controllare se ultima board/penultima sono regoalari
+        3)se UGUALI non va bene
+        4)confronto le 2 tabella e mi attivo quando trovo un'anomalia(qualcosa che penultima[row][cool]!=ultima[row][cool])
+        5)su quella vedo se muovendo o mangiando mi riconduco all'ultima tabella; se Si apoosto ho finito, se No ripeto il punto 5(ci possono essere massimo 3 anomalie: 2 se muovo, 3 se mangio)
+        6) se sono arrivato alla fine oppure dalle anomalie non salta fuori niente che mi riporta all'ultima tabella,allora è stata fatta una mossa invalida
+    */
+    if(countBoard(this->pimpl->history)<=1)
+    {//ci devono essere almeno 2 board
+        string str="ci devono essera almeno 2 board in hystory";
+        throw player_exception{player_exception::index_out_of_bounds,str};
+    }
+    else
+    {
+        mossa* last=this->pimpl->history;
+        mossa* second_last=this->pimpl->history;
+        while (last->next!=nullptr)
+        {
+            last=last->next;
+        }
+
+        while(second_last->next!=last)
+        {
+            second_last=second_last->next;
+        }
+
+        if(boardEquals(last->Campo_gioco,second_last->Campo_gioco)==false||(boardApposto(last->Campo_gioco))==false||(boardApposto(second_last->Campo_gioco))==false)
+        {//le 2 board sono ugali oppure una delle 2 non è valida
+            return false;
+        }
+        else
+        {
+            bool boardValid=false;
+            int rows=0,cools=0;
+
+            bool primaAnomalia=true,secondaAnomalia=true,terzaAnomali=true;
+            
+            while (rows<8&&boardValid==false)
+            {
+                while(cools<8&&boardValid==false)
+                {
+                    /*
+                        1)se anomalia faccio i controlli
+                        2)prima controllo se risultato di una mossa per mangiare
+                        3)se non è questo allora provo a vedere se è risultato di una mossa
+                        4)se neanche questo allora la potrebbe essere sulla prossima anomalia che riscontro
+                    */
+                    if(second_last->Campo_gioco[rows][cools]!=last->Campo_gioco[rows][cools])
+                    {//se anomalia che trovo è spazio nella penultima è pedina nell'ultima difficile
+                        
+                    }
+                    cools++;
+                }
+                cools=0;
+                rows++;
+            }
+            
+        }
+        
+    }
     return false;
 }
 
-void Player::pop()
+void Player::pop()//concluso definitivo
 {
     if(this->pimpl->history!=nullptr)
     {
@@ -1662,7 +1770,7 @@ void Player::pop()
             app=app->next;
         }
         delete(app);
-        app=nullptr;
+        
     }
     else
     {
