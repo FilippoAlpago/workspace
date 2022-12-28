@@ -205,7 +205,7 @@ char pieceToChar(Player::piece p)//concluso definitivo
     }
 }
 
-int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)//concluso definitivo
+int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)//da problemi con player 2 indagare affondo
 {//ogni due posizioni del vettore che ritorno c'è la coppia riga-colonna in cui potrei mangiare; se dim==0 restituisco nullptr, altrimenti se non posso mangiare scrivo -1 nelle 2 posizioni del vettore;
     if(dim==0)
     {
@@ -227,6 +227,7 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)//conclu
             pedinaDaMangiare=Player::X;
             player_nr=2;
         }
+        cout<<"move() sono il player "<<player_nr<<endl;
         int *posValid=new int[dim*2];
         //*2 perche perche le posizioni in cui posso mangiare sono a coppie
         bool eatWithDama=true;
@@ -873,7 +874,7 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)//conclu
     }   
 }
 
-int* movePositions(Player::piece board[8][8],int rows, int cool, int dim)//
+int* movePositions(Player::piece board[8][8],int rows, int cool, int dim)//da problemi con player 2, non muove controlare gli IF sicuro che è li il problema
 {
     int *posValid=new int[dim*2];
     Player::piece pedinaDaMangiare,DamaDaMangiare;
@@ -1729,24 +1730,135 @@ bool Player::valid_move() const
         }
         else
         {
-            bool boardValid=false;
+            bool boardValid=false,booleano=true;
             int rows=0,cools=0;
 
-            bool primaAnomalia=true,secondaAnomalia=true,terzaAnomali=true;
+            bool primaAnomalia=true,secondaAnomalia=true,terzaAnomalia=true;
             
-            while (rows<8&&boardValid==false)
+            while (rows<8&&booleano==true)
             {
-                while(cools<8&&boardValid==false)
+                while(cools<8&&booleano==true)
                 {
                     /*
                         1)se anomalia faccio i controlli
                         2)prima controllo se risultato di una mossa per mangiare
                         3)se non è questo allora provo a vedere se è risultato di una mossa
-                        4)se neanche questo allora la potrebbe essere sulla prossima anomalia che riscontro
                     */
                     if(second_last->Campo_gioco[rows][cools]!=last->Campo_gioco[rows][cools])
-                    {//se anomalia che trovo è spazio nella penultima è pedina nell'ultima difficile
+                    {
+                        if(terzaAnomalia==false)
+                        {//ho rilevato un numero maggiore di 3 di anomalie, non è possibile
+                            booleano=false;
+                        }
+                        else
+                        {
+                            if(primaAnomalia==true)
+                            {
+                                primaAnomalia=false;
+                            }
+                            else
+                            {
+                                if(secondaAnomalia==true)
+                                {
+                                    secondaAnomalia=false;
+                                }
+                                else
+                                {
+                                    if(terzaAnomalia==true)
+                                    {
+                                        terzaAnomalia=false;
+                                    }
+                                }
+                            }
                         
+                            if(second_last->Campo_gioco[rows][cools]!=Player::piece::e&&last->Campo_gioco[rows][cools]==Player::piece::e)
+                            {//controllo prima se devo mangiare e poi se posso muovere
+                                Player::piece nuovaboard[8][8];
+                                for(int i=0;i<8;i++)
+                                {
+                                    for(int j=0;j<8;j++)
+                                    {
+                                        nuovaboard[i][j]=second_last->Campo_gioco[i][j];
+                                    }
+                                    
+                                }
+
+                                int dim=2;
+                                bool dama=false;
+                                if(second_last->Campo_gioco[rows][cools]==Player::piece::O||second_last->Campo_gioco[rows][cools]==Player::piece::X)
+                                {//se anomalia è una dama
+                                    dim=4;
+                                    dama=true;
+                                }
+                                int* eatPos=eatPositions(nuovaboard,rows,cools,dim);
+                                int PosInvalidforEat=0;
+                                int limit=dim*2,i=0;
+                                
+                                
+                                while(i<limit)
+                                {//controlo quante mosse per mangiare posso fare
+                                    if(eatPos[i]==-1&&eatPos[i+1]==-1)
+                                    {//ho trovato una posizione in cui posso mangiare
+                                        PosInvalidforEat++;
+                                    }
+                                    i=i+2;
+                                }
+
+                                if(PosInvalidforEat!=2&&PosInvalidforEat!=4)
+                                {
+                                    int ArrayApp[4]={0,2,4,6};
+                                    i=0;
+                                    while(i<limit)
+                                    {
+                                        if(eatPos[i]!=-1&&eatPos[i+1]!=-1)
+                                        {//ho trovato una posizione in cui posso mangiare, verifico se mangiando ottengo l'ultima board
+
+                                            if(eatPos[i]==0&&dama==false&&second_last->Campo_gioco[rows][cools]==Player::piece::x)
+                                            {
+                                                nuovaboard[rows][cools]=Player::piece::X;
+                                            }
+
+                                            if(eatPos[i]==7&&dama==false&&second_last->Campo_gioco[rows][cools]==Player::piece::o)
+                                            {
+                                                nuovaboard[rows][cools]=Player::piece::O;
+                                            }
+
+                                            nuovaboard[eatPos[i]][eatPos[i+1]]=nuovaboard[rows][cools];
+                                            nuovaboard[(eatPos[i]+rows)/2][(eatPos[i+1]+cools)/2]=Player::piece::e;
+                                            nuovaboard[rows][cools]=Player::piece::e;
+                                            if(boardEquals(nuovaboard,last->Campo_gioco)==true)
+                                            {   
+                                                boardValid=true;
+                                                //forzo l'uscita dal ciclo 
+                                                booleano=false;
+                                                i=limit;
+                                            }
+                                            else
+                                            {//resetto la board di appoggio e continuo a cercare, uscirò se e solo trovo una board corrispondente oppure non la trovo
+                                                for(int i=0;i<8;i++)
+                                                {
+                                                    for(int j=0;j<8;j++)
+                                                    {
+                                                        nuovaboard[i][j]=second_last->Campo_gioco[i][j];
+                                                    }
+                                                }
+                                            }
+                                        }
+                                        i=i+2;
+                                    }
+                                    delete [] eatPos;
+                                }
+                                else
+                                {//non posso mangiare, ma forse posso muovere
+                                    i=0;
+                                    int* movePos=movePositions(nuovaboard,rows,cools,dim);
+        
+
+
+                                    delete [] eatPos;
+                                }
+                            }
+                        }   
                     }
                     cools++;
                 }
@@ -1754,10 +1866,11 @@ bool Player::valid_move() const
                 rows++;
             }
             
+            return boardValid;
         }
         
     }
-    return false;
+    
 }
 
 void Player::pop()//concluso definitivo
