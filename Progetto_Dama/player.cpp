@@ -15,7 +15,7 @@ struct Player::Impl
 };
 
 
-Player::piece CharToPiece(char c)//conclusa definitivo
+Player::piece CharToPiece(char c)
 {        
     if(c=='x')
     {
@@ -72,7 +72,7 @@ mossa* copy( mossa* source)//metodo interno per copia, servira per copy costruct
     }
 }
 
-void sistemaRiga(string& rigaDasistemare)//concluso definitivo//metodo che elimina spazi in eccesso
+void sistemaRiga(string& rigaDasistemare)//metodo che elimina spazi in eccesso
 {//assunto il formato che la riga deve avere sul file
     int i=1,countSpaziEliminati=0;
     while(i<8)
@@ -85,28 +85,28 @@ void sistemaRiga(string& rigaDasistemare)//concluso definitivo//metodo che elimi
         i++;
     }  
 }
-int countBoard(mossa* hystory)//concluso definitivo//metodo per "contare" le hystory, mi serve per operator() e storeBoard
+int countBoard(mossa* hystory)//metodo per "contare" le hystory, mi serve per operator() e storeBoard
 {
-    //cout<<"ciao sono all'inizio"<<endl;
+    
     if(hystory==nullptr)
     {
-        //cout<<"sono dentro if"<<endl;
+        
         return 0;
     }
     else
     {
-        //cout<<"sono nell'else"<<endl;
+        
         int i=1;
         while(hystory->next!=nullptr)
         {
-            //cout<<i<<endl;
+            
             i++;
             hystory=hystory->next;
         }
         return i; 
     }
 }
-bool boardApposto(Player::piece board[8][8])//concluso definitivo mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
+bool boardApposto(Player::piece board[8][8])// mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
 {
     int NumPedine_o=0,numDame_O=0,NumPedine_x=0,numDame_X=0;
     int rows=0,cools=0;
@@ -117,10 +117,10 @@ bool boardApposto(Player::piece board[8][8])//concluso definitivo mi serve per l
         {
             if(board[rows][cools]!=Player::piece::e)
             {
-                //cout<<"ho trovato qualcosa !=e, è "<<to_string(board[rows][cools])<<endl;
+                
                 if((rows+cools)%2!=0)//leggo qualcosa diverso da e
                 {//pedina o dama devono stare in posizione in cui Rows P e Cool P  o  Rows D e Cools D(la somma di rows e cool è pari), altrimenti sono fuori posto
-                    //cout<<"ho trovato qualcosa !=e in posizione errata"<<endl;
+                    
                     BoardValida=false;
                 }
                 else
@@ -129,7 +129,7 @@ bool boardApposto(Player::piece board[8][8])//concluso definitivo mi serve per l
                     {
                         if(rows==0)
                         {//in riga zero non ci devono essere le x ma X
-                            //cout<<"ho trovato una x in posizione sbagliata, ci deve essere una X"<<endl;
+                           
                             BoardValida=false;
                         }
                         NumPedine_x++;
@@ -172,7 +172,7 @@ bool boardApposto(Player::piece board[8][8])//concluso definitivo mi serve per l
 
     return BoardValida;
 }
-char pieceToChar(Player::piece p)//concluso definitivo
+char pieceToChar(Player::piece p)
 {
     if(p==Player::e)
     {
@@ -223,8 +223,8 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
         }
         else if(board[rows][cool]!=Player::piece::e)
         {//altrimenti io sono player 2->le mie nemiche sono x/X
-            pedinaDaMangiare=Player::x;
-            DamaDaMangiare=Player::X;
+            pedinaDaMangiare=Player::piece::x;
+            DamaDaMangiare=Player::piece::X;
             player_nr=2;
         }
         int i=0;
@@ -236,10 +236,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
         }
         i=0;
         //*2 perche perche le posizioni in cui posso mangiare sono a coppie
-        bool eatWithDama=true;
+        bool eatWithDama=false;
         if(board[rows][cool]==Player::piece::X||board[rows][cool]==Player::piece::O)
         {
-            eatWithDama=false;
+            eatWithDama=true;
         }
         bool bassoSX=true,bassoDX=true,altoSX=true,altoDX=true;
         
@@ -384,10 +384,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                             
                                 
                                 posValid[i]=rows-2;
-                                //cout<<"move() riga "<<posValid[i];
+                                
                                 i++;
                                 posValid[i]=cool+2;
-                                //cout<<"move() colonna "<<posValid[i]<<endl;
+                                
                                 i++;
                             
                             
@@ -405,10 +405,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                     {
                         
                             posValid[i]=rows-2;
-                            //cout<<"move() riga "<<posValid[i];
+                            
                             i++;
                             posValid[i]=cool+2;
-                            //cout<<"move() colonna "<<posValid[i]<<endl;
+                            
                             i++;
                         
                         
@@ -435,10 +435,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                         {//se dopo c'è spazio allora posso aggiungere le posizioni
                             
                                 posValid[i]=rows-2;
-                                //cout<<"move() riga "<<posValid[i];
+                                
                                 i++;
                                 posValid[i]=cool-2;
-                                //cout<<"move() colonna "<<posValid[i]<<endl;
+                                
                                 i++;
                             
                             
@@ -458,10 +458,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                     {
                         
                             posValid[i]=rows-2;
-                            //cout<<"move() riga "<<posValid[i];
+                            
                             i++;
                             posValid[i]=cool-2;
-                            //cout<<"move() colonna "<<posValid[i]<<endl;
+                            
                             i++;
                         
                         
@@ -486,10 +486,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                         {//se dopo c'è spazio allora posso aggiungere le posizioni
                             
                                 posValid[i]=rows+2;
-                                //cout<<"move() riga "<<posValid[i];
+                                
                                 i++;
                                 posValid[i]=cool+2;
-                                //cout<<"move() colonna "<<posValid[i]<<endl;
+                                
                                 i++;
                             
                             
@@ -509,10 +509,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                     {
                         
                             posValid[i]=rows+2;
-                            //cout<<"move() riga "<<posValid[i];
+                            
                             i++;
                             posValid[i]=cool+2;
-                            //cout<<"move() colonna "<<posValid[i]<<endl;
+                            
                             i++;
                         
                         
@@ -537,10 +537,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                         {//se dopo c'è spazio allora posso aggiungere le posizioni
                             
                                 posValid[i]=rows+2;
-                                //cout<<"move() riga "<<posValid[i];
+                                
                                 i++;
                                 posValid[i]=cool-2;
-                                //cout<<"move() colonna "<<posValid[i]<<endl;
+                                
                                 i++;
                              
                         }
@@ -558,10 +558,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                     {
                         
                             posValid[i]=rows+2;
-                            //cout<<"move() riga "<<posValid[i];
+                           
                             i++;
                             posValid[i]=cool-2;
-                            //cout<<"move() colonna "<<posValid[i]<<endl;
+                            
                             i++;
                         
                         
@@ -784,7 +784,7 @@ bool boardEquals(Player::piece B1[8][8],Player::piece B2[8][8])
     return equals;
 }
 
-Player::Player(int player_nr )//concluso definitivo
+Player::Player(int player_nr )
 {
     
     if(player_nr==1||player_nr==2)
@@ -838,7 +838,7 @@ Player& Player::operator=(const Player& p)
     return *this;
 }
 
-Player::piece Player::operator()(int r, int c, int history_offset) const//concluso definitivo
+Player::piece Player::operator()(int r, int c, int history_offset) const
 {
     //vedere se esiste la hystory-esima(legge al contrario) e r,c sono validi(0<=r,c<8)
     /*
@@ -846,25 +846,22 @@ Player::piece Player::operator()(int r, int c, int history_offset) const//conclu
         2)dopo che sono arrivato accedo a campo e ritorno il valore (r,c), se sono dentro i limiti sennò index_out_of_bounds
     */
     mossa* app=this->pimpl->history;
-    /*if(this->pimpl->history==nullptr)
-    {
-        cout<<" Operator() this->pimpl->hystory è vuoto \n"<<endl;
-    }*/   
+    
     int NumBoard=countBoard(app);
      
-    //cout<<"operator() ci sono "<<NumBoard<<" board nella hystory"<<endl;
+    
     if(NumBoard<history_offset||history_offset<0||NumBoard==0)
     {//history_offset > della history effetiva o non accetabile(negativa) o history vuota, intercettare
         
         string str="history numero "+to_string(history_offset) +"non esistente";
-        cout<<"operator() "<<str<<endl;
+        
         throw player_exception{player_exception::index_out_of_bounds,str};
     }
     else
     {//history_offset è "dentro il range " della mia history 
         //andiamo a quella history_offset
         
-        //cout<<" operator() c'è qualcosa dentro la hysty"<<endl;
+        
         int NumHystory=NumBoard-history_offset-1;
         app=this->pimpl->history;
         
@@ -873,37 +870,32 @@ Player::piece Player::operator()(int r, int c, int history_offset) const//conclu
             app=app->next;
             NumHystory--;
         }
-        //cout<<"operator() sono arrivato in posizione offSet"<<endl;
+        
         if(0<=r<8)//r,c siano cordinate esistenti
         {
             if(c<8&&c>=0)
             {
-                /*cout<<"operator() rstituisco il valore"<<endl;
-                cout<<"operator() riga "<<r<<" colonna "<<c<<endl;
-                if(app==nullptr)
-                {
-                    cout<<"operator() app è vuoto"<<endl;
-                }*/
+                
                 return app->Campo_gioco[r][c];
             }
             else
             {
                 string str="c="+to_string(c) +", colonna non esistente";
-                cout<<"operator() "<<str<<endl;
+                
                 throw player_exception{player_exception::index_out_of_bounds,str};
             }
         }
         else
         {
             string str="r="+to_string(r) +", riga non esistente";
-            cout<<"operator() "<<str<<endl;
+            
             throw player_exception{player_exception::index_out_of_bounds,str};
         }
     }
     
 }
 
-void Player::load_board(const std::string& filename)//concluso definitivo
+void Player::load_board(const std::string& filename)
 {
     /*
         1) controllare se formato file corretto .txt
@@ -926,7 +918,7 @@ void Player::load_board(const std::string& filename)//concluso definitivo
             mossa* app=this->pimpl->history;//da qui iniziano i problemi!!!. verificare a casa.!!!!!
             if(app!=nullptr)
             {
-                //cout<<"Load_board() app non è vuoto"<<endl;
+                
                 while(app->next!=nullptr)
                 {
                     app=app->next;
@@ -937,18 +929,18 @@ void Player::load_board(const std::string& filename)//concluso definitivo
             }
             else
             {
-                //cout<<" Load_board()app è vuoto"<<endl;
+                
                 app=new mossa;
                 app->next=this->pimpl->history;
                 this->pimpl->history=app; 
             }
             
-            //cout<<" sono prima della lettura del file"<<endl;
+            
             while(getline(Myfile,riga)&&rigaApposto==true)
             {//ad ogni riga letta, prima la "pulisco" dagli spazi in eccesso
                 if(riga.length()!=15)
                 {//deve essere cosi
-                    //cout<<"lunghezza riga non apposto, è "<<riga.length()<<endl;
+                    
                     rigaApposto=false;
                 }
                 else
@@ -959,29 +951,21 @@ void Player::load_board(const std::string& filename)//concluso definitivo
                     {
                         app->Campo_gioco[rows][cools]=CharToPiece(riga.at(i));
                         
-                        //cout<<app->Campo_gioco[rows][cools];
+                        
                         cools++;
                     }
-                    //cout<<endl;
+                    
                     rows++;
                     cools=0;
                 }
                 
             }
-            /*cout<<"ora stampo la board"<<endl;            
-            for(int i=0;i<8;i++)
-            {
-                for(int j=0;j<8;j++)
-                {
-                    cout<<(app->Campo_gioco[i][j]);
-                }
-                cout<<endl;
-            }*/
+            
             //dopo aver finito di aggiungere alla mia board, controllo che sia valida
             bool BoardValida=boardApposto(app->Campo_gioco);          
             if(BoardValida==false)
             {
-                cout<<" il file contiene una board invalida"<<endl;
+                
                 string str="il file "+filename+" contiene una scacchiera non valida";
                 throw player_exception{player_exception::invalid_board,str};
             }
@@ -989,7 +973,7 @@ void Player::load_board(const std::string& filename)//concluso definitivo
             {
                 if(rigaApposto==false)
                 {
-                    cout<<" il file contiene una riga invalida"<<endl;
+                    
                     string str="il file "+filename+" contiene una riga non valida";
                     throw player_exception{player_exception::invalid_board,str};
                 }
@@ -999,20 +983,20 @@ void Player::load_board(const std::string& filename)//concluso definitivo
         }
         else
         {//erroe nell'apertura del file
-            cout<<" il file non è stao aperto corretamente"<<endl;
+            
             string str="errore nell'apertura di "+filename+", probabilmente il file non esiste";
             throw player_exception{player_exception::missing_file,str};
         }
    }
    else
    {
-        cout<<" il file non ha estensione corretta"<<endl;
+        
         string str="filename "+filename+" non ha un estensione corretta";
         throw player_exception{player_exception::missing_file,str};
    }
 }
 
-void Player::store_board(const std::string& filename, int history_offset) const//conclusa definitivo
+void Player::store_board(const std::string& filename, int history_offset) const
 {
     mossa* app=this->pimpl->history;
     int NumBoard=countBoard(app);
@@ -1064,7 +1048,7 @@ void Player::store_board(const std::string& filename, int history_offset) const/
     }
 }
 
-void Player::init_board(const std::string& filename) const//concluso definitivo
+void Player::init_board(const std::string& filename) const
 {//create and store an initial board to file
     //Player 1 is the one starting in the low row values (rows 0,1,2), 
 	//player 2 starts in the high row values (rows 5,6,7).
@@ -1144,7 +1128,7 @@ void Player::init_board(const std::string& filename) const//concluso definitivo
     Myfile.close();
 }
 
-void Player::move()//inventare modo più efficace della scelta casuale della pedina da muovere, faccio un mossa e può finire subito la partita
+void Player::move()
 {
 
     if(this->pimpl->history==nullptr)
@@ -1208,7 +1192,7 @@ void Player::move()//inventare modo più efficace della scelta casuale della ped
                 cools=(rand()%8);
             }
         }
-        cout<<"move() ho scelto "<<pieceToChar(app->Campo_gioco[rows][cools])<<" in posizione "<<rows<<","<<cools<<endl;
+        
         //esco quando ho trovato qeuello che voglio muovere!!!!!!!!!! se passo una board con solo un tipo di pedine va avnti all'infinito
         
         bool pedinaIsDama=false;
@@ -1222,10 +1206,7 @@ void Player::move()//inventare modo più efficace della scelta casuale della ped
         int* EatposPossibili=eatPositions(nuovaBoard,rows,cools,possibbiliSopostamenti);
         
         int iterator=possibbiliSopostamenti*2;
-        /*ora che ho le posizioni devo:
-            -vedere se posso mangiare(se tutte le coppie sono diverse da -1), altrimenti non posso mangiare
-            -se una coppia è -1, allora in qualche modo devo scegliere altro fuorchè quella coppia
-        */
+        
         int i=0,posInvalidePerMangiare=0;
 
         while(i<iterator)
@@ -1235,17 +1216,17 @@ void Player::move()//inventare modo più efficace della scelta casuale della ped
             {
                 posInvalidePerMangiare++;
             }
-            //cout<<EatposPossibili[i]<<","<<EatposPossibili[i+1]<<endl;
-            i=i+2;//'conto' a coppie di 2
+            
+            i=i+2;
         }
         
         ho_trovato=false;
         int rowsInCuiMangero=0,coolInCuimangero=0;
         int ArrayApp[4]={0,2,4,6}, posRandom=ArrayApp[rand()%possibbiliSopostamenti];//se non dama
         
-        if(posInvalidePerMangiare!=2&&posInvalidePerMangiare!=4)
+        if((posInvalidePerMangiare!=2&&possibbiliSopostamenti==2)||(posInvalidePerMangiare!=4&&possibbiliSopostamenti==4))
         {//vuol dire che posInvalidePerMangiare non coincide con il totale delle mosse possibili-> è possibile mangiare in qualche posizione
-            cout<<"move() posso mangiare"<<endl;
+            
             while(ho_trovato==false)
             {//randomizzo la posizione di scelta, se la coppia è diversa da -1 allora scelgo quella
             
@@ -1294,7 +1275,7 @@ void Player::move()//inventare modo più efficace della scelta casuale della ped
         else
         {//non posso mangiare, quindi forse posso muovere
             delete [] EatposPossibili;
-            cout<<"move() forse posso muovere "<<endl;
+            
             i=0;
             int posInvalidPerMuovere=0,rowInCuiMuovero=0,coolInCuiMuovero=0;
             int* movePosPossibili=movePositions(nuovaBoard,rows,cools,possibbiliSopostamenti);
@@ -1310,10 +1291,11 @@ void Player::move()//inventare modo più efficace della scelta casuale della ped
             }
             i=0;
             
-            //se posinalidPerMuovere==o ( non posso muovere)
-            if(posInvalidPerMuovere!=2&&posInvalidPerMuovere!=4)
+            
+            if((posInvalidPerMuovere!=2&&possibbiliSopostamenti==2)||(posInvalidPerMuovere!=4&&possibbiliSopostamenti==4))
             {//posso muovere
-                cout<<"move() posso muovere "<<endl;
+                
+                posRandom=ArrayApp[rand()%possibbiliSopostamenti];
                 while(ho_trovato==false)
                 {//randomizzo la posizione di scelta, se la coppia è diversa da -1 allora scelgo quella
             
@@ -1356,7 +1338,7 @@ void Player::move()//inventare modo più efficace della scelta casuale della ped
             else
             {//non posso muoverer quindi carico una copia della board è basta;
                 delete [] movePosPossibili;
-                cout<<"move() non posso muovere "<<endl;
+                
                 app->next=new mossa;
                 app->next->next=nullptr;
                 for(int i=0;i<8;i++)
@@ -1381,6 +1363,7 @@ bool Player::valid_move() const
         3)se UGUALI non va bene
         4)confronto le 2 tabella e mi attivo quando trovo un'anomalia(qualcosa che penultima[row][cool]!=ultima[row][cool])
         5)su quella vedo se muovendo o mangiando mi riconduco all'ultima tabella; se Si apoosto ho finito, se No ripeto il punto 5(ci possono essere massimo 3 anomalie: 2 se muovo, 3 se mangio)
+            a meno che ho rilevato un anomalia, ma noo posso ne mangiare ne muovere-> in tal caso la board è invalida
         6) se sono arrivato alla fine oppure dalle anomalie non salta fuori niente che mi riporta all'ultima tabella,allora è stata fatta una mossa invalida
     */
     if(countBoard(this->pimpl->history)<=1)
@@ -1402,8 +1385,9 @@ bool Player::valid_move() const
             second_last=second_last->next;
         }
 
-        if(boardEquals(last->Campo_gioco,second_last->Campo_gioco)==false||(boardApposto(last->Campo_gioco))==false||(boardApposto(second_last->Campo_gioco))==false)
+        if(boardEquals(last->Campo_gioco,second_last->Campo_gioco)==true||(boardApposto(last->Campo_gioco))==false||(boardApposto(second_last->Campo_gioco))==false)
         {//le 2 board sono ugali oppure una delle 2 non è valida
+           
             return false;
         }
         else
@@ -1421,6 +1405,7 @@ bool Player::valid_move() const
                         1)se anomalia faccio i controlli
                         2)prima controllo se risultato di una mossa per mangiare
                         3)se non è questo allora provo a vedere se è risultato di una mossa
+                        4) se neanche questo allora ritorno falso
                     */
                     if(second_last->Campo_gioco[rows][cools]!=last->Campo_gioco[rows][cools])
                     {
@@ -1448,9 +1433,10 @@ bool Player::valid_move() const
                                     }
                                 }
                             }
-                        
+
                             if(second_last->Campo_gioco[rows][cools]!=Player::piece::e&&last->Campo_gioco[rows][cools]==Player::piece::e)
                             {//controllo prima se devo mangiare e poi se posso muovere
+                            
                                 Player::piece nuovaboard[8][8];
                                 for(int i=0;i<8;i++)
                                 {
@@ -1481,13 +1467,13 @@ bool Player::valid_move() const
                                     }
                                     i=i+2;
                                 }
-
-                                if(PosInvalidforEat!=2&&PosInvalidforEat!=4)
-                                {
-                                    int ArrayApp[4]={0,2,4,6};
+                              
+                                if((PosInvalidforEat!=2&&dim==2)||(PosInvalidforEat!=4&&dim==4))
+                                {//posso mangiare
+                                   
                                     i=0;
                                     while(i<limit)
-                                    {
+                                    {//controllo su tutte le posizioni in cui posso mangiare
                                         if(eatPos[i]!=-1&&eatPos[i+1]!=-1)
                                         {//ho trovato una posizione in cui posso mangiare, verifico se mangiando ottengo l'ultima board
 
@@ -1505,7 +1491,7 @@ bool Player::valid_move() const
                                             nuovaboard[(eatPos[i]+rows)/2][(eatPos[i+1]+cools)/2]=Player::piece::e;
                                             nuovaboard[rows][cools]=Player::piece::e;
                                             if(boardEquals(nuovaboard,last->Campo_gioco)==true)
-                                            {   
+                                            {//risultato è la l'ultima board   
                                                 boardValid=true;
                                                 //forzo l'uscita dal ciclo 
                                                 booleano=false;
@@ -1528,12 +1514,83 @@ bool Player::valid_move() const
                                 }
                                 else
                                 {//non posso mangiare, ma forse posso muovere
+                                    delete [] eatPos;
+                                   
                                     i=0;
                                     int* movePos=movePositions(nuovaboard,rows,cools,dim);
-        
+                                    int posInvalidForMove=0;
+                                    while(i<limit)
+                                    {//controlo quante mosse per mangiare posso fare
+                                        if(movePos[i]==-1&&movePos[i+1]==-1)
+                                        {//ho trovato una posizione in cui non posso muovere
+                                            posInvalidForMove++;
+                                        }
+                                        i=i+2;
+                                    }
+                                    if((posInvalidForMove!=2&&dim==2)||(posInvalidForMove!=4&&dim==4))
+                                    {//posso muovere
+                                       
+                                        for(int i=0;i<8;i++)
+                                        {
+                                            for(int j=0;j<8;j++)
+                                            {
+                                                nuovaboard[i][j]=second_last->Campo_gioco[i][j];
+                                            }
+                                        }
+                                        i=0;
 
+                                        while(i<limit)
+                                        {
+                                            if(movePos[i]!=-1&&movePos[i+1]!=-1)
+                                            {
+                                                if(movePos[i]==0&&dama==false&&second_last->Campo_gioco[rows][cools]==Player::piece::x)
+                                                {
+                                                    nuovaboard[rows][cools]=Player::piece::X;
+                                                }
 
-                                    delete [] eatPos;
+                                                if(movePos[i]==7&&dama==false&&second_last->Campo_gioco[rows][cools]==Player::piece::o)
+                                                {
+                                                    nuovaboard[rows][cools]=Player::piece::O;
+                                                }
+                                                //modifico le board
+                                                //controllo
+                                                //resetto
+                                                nuovaboard[movePos[i]][movePos[i+1]]=nuovaboard[rows][cools];
+                                                nuovaboard[rows][cools]=Player::piece::e;
+                                                if(boardEquals(nuovaboard,last->Campo_gioco)==true)
+                                                {
+                                                    boardValid=true;
+                                                    
+                                                    booleano==false;
+                                                    i=limit;
+                                                }
+                                                else
+                                                {
+                                                    for(int i=0;i<8;i++)
+                                                    {
+                                                        for(int j=0;j<8;j++)
+                                                        {
+                                                            nuovaboard[i][j]=second_last->Campo_gioco[i][j];
+                                                        }
+                                                    }
+                                                    
+                                                }
+                                            }
+
+                                            i=i+2;
+                                        }
+                                        delete[] movePos;
+
+                                    }
+                                    else
+                                    {// ho rilevato un'anomalia,ma non posso ne mangiare ne muovere, quindi non potrò mai ottenere l'ultima board da una mossa sulla penultima
+                                        delete[] movePos;
+                                        
+                                        booleano=false;
+                                        boardValid=false;
+                                    }
+
+                                    
                                 }
                             }
                         }   
@@ -1551,7 +1608,7 @@ bool Player::valid_move() const
     
 }
 
-void Player::pop()//concluso definitivo
+void Player::pop()
 {
     if(this->pimpl->history!=nullptr)
     {
@@ -1571,7 +1628,7 @@ void Player::pop()//concluso definitivo
     
 }
 
-bool Player::wins(int player_nr) const //concluso definitivo
+bool Player::wins(int player_nr) const 
 {
     if((player_nr!=1&&player_nr!=2)||this->pimpl->history==nullptr)
     {
@@ -1601,12 +1658,12 @@ bool Player::wins(int player_nr) const //concluso definitivo
     
 }
 
-bool Player::wins() const//concluso definitivo
+bool Player::wins() const
 {
     //se player 1 vedo se non ci sono più o/O con player 2 viceversa
     if(this->pimpl->history!=nullptr)
     {
-        //cout<<"wins() sono all'inizio"<<endl;
+        
         mossa* app=this->pimpl->history;
         piece PedineDaControllare;
         piece DameDaControllare;
@@ -1616,13 +1673,7 @@ bool Player::wins() const//concluso definitivo
             app=app->next;
         }
         
-        /*if(app==nullptr)
-        {
-            cout<<"wins() app è nullptr"<<endl; 
-        }
-        cout<<"wins() "<<app->Campo_gioco[2][6]<<endl; 
-        cout<<"wins() sono dopo lo scorrimento"<<endl;  
-        cout<<"wins() sono alle selezione delle pedine che devo cercare"<<endl;*/
+        
         if(this->pimpl->Player_Number==1)
         {//in base al player cerco determinate pedine, se non sono presenti allora vuol dire che ho vinto; se player 1 cerco le o/O e viceversa per player 2
             PedineDaControllare=Player::o;
@@ -1633,15 +1684,15 @@ bool Player::wins() const//concluso definitivo
             PedineDaControllare=Player::x;
             DameDaControllare=Player::X;
         }
-        //cout<<"wins() sono dopo la selezione delle pedine che devo cercare"<<endl;
+        
         int i=0,j=0;
         bool trovato=false;
-        //cout<<"wins() sono prima delle revisione riga per riga"<<endl;
+        
         while(i<8&&trovato==false)
         {
             while(j<8&&trovato==false)
             {
-                //cout<<"wins() sono prima del if sul controllo della tabella"<<endl;
+                
                 
                 if(app->Campo_gioco[i][j]==PedineDaControllare||app->Campo_gioco[i][j]==DameDaControllare)
                 {
@@ -1653,8 +1704,7 @@ bool Player::wins() const//concluso definitivo
             j=0;
             i++;
         }
-        /*cout<<"wins() ho controllato righe "<<i<<" e colonne "<<j<<endl;
-        cout<<"wins() sono dopo ls revisione riga per riga"<<endl;*/
+        
         return !trovato;//siccome sto cercando determinate pedine, non trovarle vuol dire che ho vinto(trovato=false ho vinto), altrimenti vuol dire che non ho vinto
     }
     else
@@ -1664,7 +1714,7 @@ bool Player::wins() const//concluso definitivo
     }
 }
 
-bool Player::loses(int player_nr) const//concluso definitivo
+bool Player::loses(int player_nr) const
 {
     if((player_nr!=1&&player_nr!=2)||this->pimpl->history==nullptr)
     {
@@ -1693,7 +1743,7 @@ bool Player::loses(int player_nr) const//concluso definitivo
     }
 }
 
-bool Player::loses() const //concluso definitivo
+bool Player::loses() const 
 {
     if(this->pimpl->history!=nullptr)
     {
