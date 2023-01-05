@@ -1,5 +1,5 @@
 #include "player.hpp"
-
+//secondo il prof da problemi su boardApposto,loadBoard e il copy costructor; controllare il copy
 using namespace std;
 struct mossa
     {
@@ -796,6 +796,7 @@ Player::Player(int player_nr )
     }
     else
     {
+        delete this->pimpl;
         string str="player number"+to_string(player_nr) +"non permesso \n";       
         throw player_exception{player_exception::err_type::index_out_of_bounds,str};
     }
@@ -820,7 +821,7 @@ Player::~Player()
 
 Player::Player(const Player& p)
 {
-    
+    this->pimpl=new Impl;
     this->pimpl->Player_Number=p.pimpl->Player_Number;
     this->pimpl->history=copy(p.pimpl->history);
 
@@ -950,13 +951,11 @@ void Player::load_board(const std::string& filename)
                     for(int i=0;i<riga.length();i++)
                     {
                         app->Campo_gioco[rows][cools]=CharToPiece(riga.at(i));
-                        
-                        
                         cools++;
                     }
-                    
-                    rows++;
                     cools=0;
+                    rows++;
+                    
                 }
                 
             }
@@ -1128,7 +1127,7 @@ void Player::init_board(const std::string& filename) const
     Myfile.close();
 }
 
-void Player::move()
+void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non riesco a muovere,anche se scelgo bene
 {
 
     if(this->pimpl->history==nullptr)
@@ -1171,30 +1170,157 @@ void Player::move()
             }
         }
 
-
         int max=7,min=0,range=max-min+1;
         srand((unsigned) time(NULL));
         int rows=rand()%range+min,cools=rand()%range+min;
         bool ho_trovato=false;
-        while(ho_trovato==false)//rifare la ricerca della pedina da muovere
+        int r=0,c=0;
+        
+        while(ho_trovato==false)
         {//continuo a 'ceracare' finchè non ho trovato una mia pedina/dama
-            if(app->Campo_gioco[rows][cools]==pedinaDaMuovere)
-            {
-                ho_trovato=true;
+            r=rows,c=cools;
+            if(nuovaBoard[rows][cools]==pedinaDaMuovere)
+            {//ora devo controllare se posso effetivamente muovere la pedina->non è bloccatta da altre pedine alleate o dame alleate;rivedere OR negli IF sta in attesa infinita  
+                if(cools==7)
+                {//no dx
+                    if(this->pimpl->Player_Number==1)
+                    {//in alto SX
+                        if(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)//ne questo ne quello
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                    else
+                    {//in basso SX
+                        if(nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                }
+                else if (cools==0)
+                {//no sx
+                    if(this->pimpl->Player_Number==1)
+                    {//in alto DX
+                        if(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere)
+                        {
+                            ho_trovato=true;
+                        }
+                        
+                        
+                    }
+                    else
+                    {// in basso DX
+                        if(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                }
+                else
+                {//controllo da entrame
+                    if(this->pimpl->Player_Number==1)
+                    {//verso alto
+                        if((nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere))
+                        {
+                            ho_trovato=true;
+                        }
+
+                    }
+                    else
+                    {//verso basso
+                        if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere))
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                }
             }
-            else if(app->Campo_gioco[rows][cools]==DamaDaMuovere)
+            else if(nuovaBoard[rows][cools]==DamaDaMuovere)
             {
-                ho_trovato=true;
+                if(cools==7)
+                {//no dx
+                    if(rows==7)
+                    {//solo alto SX
+                        if(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                    else if(rows==0)
+                    {// solo basso SX
+                        if(nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                    else
+                    {// solo SX
+                        if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere))
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                    
+                }
+                else if (cools==0)
+                {//no sx
+                    if(rows==7)
+                    {//solo alto DX
+                        if(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere)
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                    else if(rows==0)
+                    {// solo basso DX
+                        if(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                    else
+                    {// solo DX
+                        if((nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere))
+                        {
+                            ho_trovato=true;
+                        }
+                    }
+                }
+                else if (rows==0)
+                {// solo basso
+                    if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||((nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)))
+                    {
+                        ho_trovato=true;
+                    }
+                }
+                else if (rows==7)
+                {//solo alto
+                    if((nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)||((nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere)))
+                    {
+                        ho_trovato=true;
+                    }
+                }
+                else
+                {//in tutte le direzioni
+                    if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere))
+                    {
+                        ho_trovato=true;
+                    }
+                }
+                
+                   
             }
-            else
-            {
+            
+            
                 rows=(rand()%8);
                 cools=(rand()%8);
-            }
+            
         }
         
-        //esco quando ho trovato qeuello che voglio muovere!!!!!!!!!! se passo una board con solo un tipo di pedine va avnti all'infinito
-        
+        //esco quando ho trovato qeuello che voglio muovere
+        //cout<<"move() ho deciso di muovere "<<pieceToChar(nuovaBoard[r][c])<<" "<<r<<","<<c<<" "<<rows<<","<<cools<<endl;
+        rows=r, cools=c;
         bool pedinaIsDama=false;
         int possibbiliSopostamenti=2;
         if(app->Campo_gioco[rows][cools]==DamaDaMuovere)
@@ -1704,7 +1830,6 @@ bool Player::wins() const
             j=0;
             i++;
         }
-        
         return !trovato;//siccome sto cercando determinate pedine, non trovarle vuol dire che ho vinto(trovato=false ho vinto), altrimenti vuol dire che non ho vinto
     }
     else
