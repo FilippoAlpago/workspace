@@ -106,6 +106,7 @@ int countBoard(mossa* hystory)//metodo per "contare" le hystory, mi serve per op
         return i; 
     }
 }
+//eliminare ble 2 funzioni bloccked, bsta che vedo se s SX e DX c'è spazio-> se uno dei 2 è vero sono apposto
 bool boardApposto(Player::piece board[8][8])// mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
 {
     int NumPedine_o=0,numDame_O=0,NumPedine_x=0,numDame_X=0;
@@ -204,6 +205,332 @@ char pieceToChar(Player::piece p)
         }
     }
 }
+bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
+{
+    Player::piece pedinaDaMuovere,DamaDaMuovere;
+    if(player_nr==1)
+    {
+        pedinaDaMuovere=Player::x;
+        DamaDaMuovere=Player::X;
+    }
+    else
+    {
+        pedinaDaMuovere=Player::o;
+        DamaDaMuovere=Player::O;
+    }
+    bool Isbloccked=false;
+
+    if(board[rows][cools]==pedinaDaMuovere)
+    {//ora devo controllare se posso effetivamente muovere la pedina->non è bloccatta da altre pedine alleate o dame alleate;rivedere OR negli IF sta in attesa infinita  
+        if(cools==7)
+        {//no dx
+            if(player_nr==1)
+            {//in alto SX
+                if(board[rows-1][cools-1]==Player::piece::e)//se spazio non è bloccata
+                {
+                    Isbloccked=true;
+                }
+            }
+            else
+            {//in basso SX
+                if(board[rows+1][cools-1]==Player::piece::e)
+                {
+                    Isbloccked=true;
+                }
+            }
+        }
+        else if (cools==0)
+        {//no sx
+            if(player_nr==1)
+            {//in alto DX
+                if(board[rows-1][cools+1]==Player::piece::e)
+                {
+                    Isbloccked=true;
+                }         
+            }
+            else
+            {// in basso DX
+                if(board[rows+1][cools+1]==Player::piece::e)
+                {
+                    Isbloccked=true;
+                }
+            }
+        }
+        else
+        {//controllo da entrame
+            if(player_nr==1)
+            {//verso alto
+                if((board[rows-1][cools-1]==Player::piece::e)||(board[rows-1][cools+1]==Player::piece::e))//non entra se in entrambe c'è qualcosa di diverso da e, se anche solo una e apposto
+                {
+                    Isbloccked=true;
+                }
+
+            }
+            else
+            {//verso basso
+                if((board[rows+1][cools-1]==Player::piece::e)||(board[rows+1][cools+1]==Player::piece::e))
+                {
+                    Isbloccked=true;
+                }
+            }
+        }
+    }
+    else if(board[rows][cools]==DamaDaMuovere)
+    {
+        if(cools==7)
+        {//no dx
+            if(rows==7)
+            {//solo alto SX
+                if(board[rows-1][cools-1]==Player::piece::e)
+                {
+                    Isbloccked=true;
+                }
+            }
+            else if(rows==0)
+            {// solo basso SX
+                if(board[rows+1][cools-1]==Player::piece::e)
+                {
+                    Isbloccked=true;
+                }
+            }
+            else
+            {// solo SX
+                if((board[rows+1][cools-1]==Player::piece::e)||(board[rows-1][cools-1]==Player::piece::e))
+                {
+                    Isbloccked=true;
+                }
+            }
+                    
+        }
+        else if (cools==0)
+        {//no sx
+            if(rows==7)
+            {//solo alto DX
+                if(board[rows-1][cools+1]==Player::piece::e)
+                {
+                    Isbloccked=true;
+                }
+            }
+            else if(rows==0)
+            {// solo basso DX
+                if(board[rows+1][cools+1]==Player::piece::e)
+                {
+                    Isbloccked=true;
+                }
+            }
+            else
+            {// solo DX
+                if((board[rows+1][cools+1]==Player::piece::e)||(board[rows-1][cools+1]==Player::piece::e))
+                {
+                    Isbloccked=true;
+                }
+            }
+        }
+        else if (rows==0)
+        {// solo basso
+            if((board[rows+1][cools-1]==Player::piece::e)||((board[rows+1][cools+1]==Player::piece::e)))
+            {
+                Isbloccked=true;
+            }
+        }
+        else if (rows==7)
+        {//solo alto
+            if((board[rows-1][cools-1]==Player::piece::e)||((board[rows-1][cools+1]==Player::piece::e)))
+            {
+                Isbloccked=true;
+            }
+        }
+        else
+        {//in tutte le direzioni
+            if((board[rows+1][cools-1]==Player::piece::e)||(board[rows+1][cools+1]==Player::piece::e)||(board[rows-1][cools-1]==Player::piece::e)||(board[rows-1][cools+1]==Player::piece::e))
+            {
+                Isbloccked=true;
+            }
+        }
+                
+                   
+    }
+
+   return Isbloccked; 
+}
+int countPiece(Player::piece board[8][8],int player_nr)
+{
+    Player::piece pedina,dama;
+    if(player_nr==1)
+    {
+        pedina=Player::piece::x;
+        dama=Player::piece::X;
+    }
+    else
+    {
+        pedina=Player::piece::o;
+        dama=Player::piece::O;
+    }
+    int count=0;
+    for(int r=0;r<8;r++)
+    {
+        for(int j=0;j<8;j++)
+        {
+            if(board[r][j]==pedina||board[r][j]==dama)
+            {
+                count++;
+            }
+        }
+    }
+    return count;
+}
+/*bool blocckedByEnemies(Player::piece board[8][8], int rows,int cools, int player_nr)
+{
+    Player::piece pedinaDaMuovere,DamaDaMuovere,pedinaNemica,DamaNemica;
+    if(player_nr==1)
+    {
+        pedinaDaMuovere=Player::o;
+        DamaDaMuovere=Player::O;
+        pedinaNemica=Player::piece::x;
+        DamaNemica=Player::piece::X;
+    }
+    else
+    {
+        pedinaDaMuovere=Player::x;
+        DamaDaMuovere=Player::X;
+        pedinaNemica=Player::piece::o;
+        DamaNemica=Player::piece::O;
+    }
+    bool bloccked=false;
+
+    if(board[rows][cools]==pedinaDaMuovere)
+    {//ora devo controllare se posso effetivamente muovere la pedina->non è bloccatta da altre pedine alleate o dame alleate;rivedere OR negli IF sta in attesa infinita  
+        if(cools==7)
+        {//no dx
+            if(player_nr==1)
+            {//in alto SX
+                if(board[rows-1][cools-1]==pedinaNemica||board[rows-1][cools-1]==DamaNemica)//se una delle 2 allora sono bloccato
+                {
+                    bloccked=true;
+                }
+            }
+            else
+            {//in basso SX
+                if(board[rows+1][cools-1]==pedinaNemica||board[rows+1][cools-1]==DamaNemica)
+                {
+                    bloccked=true;
+                }
+            }
+        }
+        else if (cools==0)
+        {//no sx
+            if(player_nr==1)
+            {//in alto DX
+                if(board[rows-1][cools+1]==pedinaNemica||board[rows-1][cools+1]==DamaNemica)
+                {
+                    bloccked=true;
+                }         
+            }
+            else
+            {// in basso DX
+                if(board[rows+1][cools+1]==pedinaNemica||board[rows+1][cools+1]==DamaNemica)
+                {
+                    bloccked=true;
+                }
+            }
+        }
+        else
+        {//controllo da entrame
+            if(player_nr==1)
+            {//verso alto
+                if((board[rows-1][cools-1]==pedinaNemica||board[rows-1][cools-1]==DamaNemica)&&(board[rows-1][cools+1]==pedinaNemica||board[rows-1][cools+1]==DamaNemica))
+                {
+                    bloccked=true;
+                }
+
+            }
+            else
+            {//verso basso
+                if((board[rows+1][cools-1]==pedinaNemica||board[rows+1][cools-1]==DamaNemica)&&(board[rows+1][cools+1]==pedinaNemica||board[rows+1][cools+1]==DamaNemica))
+                {
+                    bloccked=true;
+                }
+            }
+        }
+    }
+    else if(board[rows][cools]==DamaDaMuovere)
+    {
+        if(cools==7)
+        {//no dx
+            if(rows==7)
+            {//solo alto SX
+                if(board[rows-1][cools-1]==pedinaNemica||board[rows-1][cools-1]==DamaNemica)
+                {
+                    bloccked=true;
+                }
+            }
+            else if(rows==0)
+            {// solo basso SX
+                if(board[rows+1][cools-1]==pedinaNemica||board[rows+1][cools-1]==DamaNemica)
+                {
+                    bloccked=true;
+                }
+            }
+            else
+            {// solo SX
+                if((board[rows+1][cools-1]==pedinaNemica||board[rows+1][cools-1]==DamaNemica)&&(board[rows-1][cools-1]==pedinaNemica||board[rows-1][cools-1]==DamaNemica))
+                {
+                    bloccked=true;
+                }
+            }
+                    
+        }
+        else if (cools==0)
+        {//no sx
+            if(rows==7)
+            {//solo alto DX
+                if(board[rows-1][cools+1]==pedinaNemica||board[rows-1][cools+1]==DamaNemica)
+                {
+                    bloccked=true;
+                }
+            }
+            else if(rows==0)
+            {// solo basso DX
+                if(board[rows+1][cools+1]==pedinaNemica||board[rows+1][cools+1]==DamaNemica)
+                {
+                    bloccked=true;
+                }
+            }
+            else
+            {// solo DX
+                if((board[rows+1][cools+1]==pedinaNemica||board[rows+1][cools+1]==DamaNemica)&&(board[rows-1][cools+1]==pedinaNemica||board[rows-1][cools+1]==DamaNemica))
+                {
+                    bloccked=true;
+                }
+            }
+        }
+        else if (rows==0)
+        {// solo basso
+            if((board[rows+1][cools-1]==pedinaNemica||board[rows+1][cools-1]==DamaNemica)&&((board[rows+1][cools+1]==pedinaNemica||board[rows+1][cools+1]==DamaNemica)))
+            {
+                bloccked=true;
+            }
+        }
+        else if (rows==7)
+        {//solo alto
+            if((board[rows-1][cools-1]==pedinaNemica||board[rows-1][cools-1]==DamaNemica)&&((board[rows-1][cools+1]==pedinaNemica||board[rows-1][cools+1]==DamaNemica)))
+            {
+                bloccked=true;
+            }
+        }
+        else
+        {//in tutte le direzioni
+            if((board[rows+1][cools-1]==pedinaNemica||board[rows+1][cools-1]==DamaNemica)&&(board[rows+1][cools+1]==pedinaNemica||board[rows+1][cools+1]==DamaNemica)&&(board[rows-1][cools-1]==pedinaNemica||board[rows-1][cools-1]==DamaNemica)&&(board[rows-1][cools+1]==pedinaNemica||board[rows-1][cools+1]==DamaNemica))
+            {
+                bloccked=true;
+            }
+        }
+                
+                   
+    }
+
+   return bloccked; 
+}*/
 
 int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
 {//ogni due posizioni del vettore che ritorno c'è la coppia riga-colonna in cui potrei mangiare; se dim==0 restituisco nullptr, altrimenti se non posso mangiare scrivo -1 nelle 2 posizioni del vettore;
@@ -1127,7 +1454,7 @@ void Player::init_board(const std::string& filename) const
     Myfile.close();
 }
 
-void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non riesco a muovere,anche se scelgo bene
+void Player::move()//capire perchè sceglie pedina bloccata dai nemici
 {
 
     if(this->pimpl->history==nullptr)
@@ -1174,153 +1501,42 @@ void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non 
         srand((unsigned) time(NULL));
         int rows=rand()%range+min,cools=rand()%range+min;
         bool ho_trovato=false;
-        int r=0,c=0;
+        bool i_cant_move=false;//booleano che si attiva solo quando scorrendo tutta la board non trrovo niente da muovere, salta tutte le verifiche sul muovere e scrive semplicemente la stessa board
         
         while(ho_trovato==false)
         {//continuo a 'ceracare' finchè non ho trovato una mia pedina/dama
-            r=rows,c=cools;
-            if(nuovaBoard[rows][cools]==pedinaDaMuovere)
-            {//ora devo controllare se posso effetivamente muovere la pedina->non è bloccatta da altre pedine alleate o dame alleate;rivedere OR negli IF sta in attesa infinita  
-                if(cools==7)
-                {//no dx
-                    if(this->pimpl->Player_Number==1)
-                    {//in alto SX
-                        if(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)//ne questo ne quello
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                    else
-                    {//in basso SX
-                        if(nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                }
-                else if (cools==0)
-                {//no sx
-                    if(this->pimpl->Player_Number==1)
-                    {//in alto DX
-                        if(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere)
-                        {
-                            ho_trovato=true;
-                        }
-                        
-                        
-                    }
-                    else
-                    {// in basso DX
-                        if(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                }
-                else
-                {//controllo da entrame
-                    if(this->pimpl->Player_Number==1)
-                    {//verso alto
-                        if((nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere))
-                        {
-                            ho_trovato=true;
-                        }
+        
+            if(nuovaBoard[rows][cools]==pedinaDaMuovere||nuovaBoard[rows][cools]==DamaDaMuovere)
+            {// ho trovato una pedina/Dama che potrei muovere
+                if(Isbloccked(nuovaBoard,rows,cools,this->pimpl->Player_Number)==true&&countPiece(nuovaBoard,this->pimpl->Player_Number)>1)
+                {//ci sono ancora pedine alleate in campo 
 
-                    }
-                    else
-                    {//verso basso
-                        if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere))
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                }
-            }
-            else if(nuovaBoard[rows][cools]==DamaDaMuovere)
-            {
-                if(cools==7)
-                {//no dx
-                    if(rows==7)
-                    {//solo alto SX
-                        if(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                    else if(rows==0)
-                    {// solo basso SX
-                        if(nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                    else
-                    {// solo SX
-                        if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere))
-                        {
-                            ho_trovato=true;
-                        }
-                    }
+                    ho_trovato=true;
                     
                 }
-                else if (cools==0)
-                {//no sx
-                    if(rows==7)
-                    {//solo alto DX
-                        if(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere)
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                    else if(rows==0)
-                    {// solo basso DX
-                        if(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                    else
-                    {// solo DX
-                        if((nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere))
-                        {
-                            ho_trovato=true;
-                        }
-                    }
-                }
-                else if (rows==0)
-                {// solo basso
-                    if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||((nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)))
-                    {
-                        ho_trovato=true;
-                    }
-                }
-                else if (rows==7)
-                {//solo alto
-                    if((nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)||((nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere)))
-                    {
-                        ho_trovato=true;
-                    }
+                else if (countPiece(nuovaBoard,this->pimpl->Player_Number)==1)
+                {//è rimasta solo una pedina-> nonostante io non possa muoverla o mangiare con essa, io devo prenderla
+                    ho_trovato=true;
+                    
                 }
                 else
-                {//in tutte le direzioni
-                    if((nuovaBoard[rows+1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows+1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows+1][cools+1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools-1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools-1]!=DamaDaMuovere)||(nuovaBoard[rows-1][cools+1]!=pedinaDaMuovere&&nuovaBoard[rows-1][cools+1]!=DamaDaMuovere))
-                    {
-                        ho_trovato=true;
-                    }
+                {
+                    rows=(rand()%8);
+                    cools=(rand()%8);
                 }
-                
-                   
             }
-            
-            
+            else
+            {
                 rows=(rand()%8);
                 cools=(rand()%8);
+            }
+           
             
         }
         
         //esco quando ho trovato qeuello che voglio muovere
-        //cout<<"move() ho deciso di muovere "<<pieceToChar(nuovaBoard[r][c])<<" "<<r<<","<<c<<" "<<rows<<","<<cools<<endl;
-        rows=r, cools=c;
+        //cout<<"move() ho deciso di muovere "<<pieceToChar(nuovaBoard[rows][cools])<<" "<<rows<<","<<cools<<endl;
+        
         bool pedinaIsDama=false;
         int possibbiliSopostamenti=2;
         if(app->Campo_gioco[rows][cools]==DamaDaMuovere)
@@ -1340,6 +1556,7 @@ void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non 
             
             if(EatposPossibili[i]==-1&&EatposPossibili[i+1]==-1)
             {
+                
                 posInvalidePerMangiare++;
             }
             
@@ -1378,7 +1595,7 @@ void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non 
             {//se muovo in riga 7, non sono una dama e le mie pedine sono o -> quella pedina che muovo deve diventare una dama O
                 nuovaBoard[rows][cools]=Player::piece::O;
             }
-
+            //cout<<"move() mangerò in "<<rowsInCuiMangero<<","<<coolInCuimangero<<endl;
             nuovaBoard[rowsInCuiMangero][coolInCuimangero]=nuovaBoard[rows][cools];//sposto la mia pedina
             nuovaBoard[(rowsInCuiMangero+rows)/2][(coolInCuimangero+cools)/2]=Player::piece::e;//dove stava la pedina che ho mangiato ora c'è spazio
             nuovaBoard[rows][cools]=Player::piece::e;
@@ -1445,7 +1662,7 @@ void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non 
                 {//se muovo in riga 7, non sono una dama e le mie pedine sono o -> quella pedina che muovo deve diventare una dama O
                     nuovaBoard[rows][cools]=Player::piece::O;
                 }
-                
+                //cout<<"muoverò in "<<rowInCuiMuovero<<","<<coolInCuiMuovero<<endl;
                 nuovaBoard[rowInCuiMuovero][coolInCuiMuovero]=nuovaBoard[rows][cools];
                 nuovaBoard[rows][cools]=Player::piece::e;
 
@@ -1464,7 +1681,7 @@ void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non 
             else
             {//non posso muoverer quindi carico una copia della board è basta;
                 delete [] movePosPossibili;
-                
+                //cout<<"move() non muovo"<<endl;
                 app->next=new mossa;
                 app->next->next=nullptr;
                 for(int i=0;i<8;i++)
@@ -1482,7 +1699,7 @@ void Player::move()//riescoa sciegliere meglio la pedina ma capire come mai non 
 }
 
 bool Player::valid_move() const
-{
+{//da problemi sulla eat di una 
     /*
         1)se solo 1 board o nessuma errore
         2)controllare se ultima board/penultima sono regoalari
