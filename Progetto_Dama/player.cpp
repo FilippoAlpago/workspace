@@ -106,7 +106,7 @@ int countBoard(mossa* hystory)//metodo per "contare" le hystory, mi serve per op
         return i; 
     }
 }
-//eliminare ble 2 funzioni bloccked, bsta che vedo se s SX e DX c'è spazio-> se uno dei 2 è vero sono apposto
+
 bool boardApposto(Player::piece board[8][8])// mi serve per load_board e valid_move; verifica se la board è valida, numero pedine giusto e al proprio posto
 {
     int NumPedine_o=0,numDame_O=0,NumPedine_x=0,numDame_X=0;
@@ -218,7 +218,7 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
         pedinaDaMuovere=Player::o;
         DamaDaMuovere=Player::O;
     }
-    bool Isbloccked=false;
+    bool Isbloccked=true;
 
     if(board[rows][cools]==pedinaDaMuovere)
     {//ora devo controllare se posso effetivamente muovere la pedina->non è bloccatta da altre pedine alleate o dame alleate;rivedere OR negli IF sta in attesa infinita  
@@ -228,14 +228,14 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
             {//in alto SX
                 if(board[rows-1][cools-1]==Player::piece::e)//se spazio non è bloccata
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
             else
             {//in basso SX
                 if(board[rows+1][cools-1]==Player::piece::e)
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
         }
@@ -245,14 +245,14 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
             {//in alto DX
                 if(board[rows-1][cools+1]==Player::piece::e)
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }         
             }
             else
             {// in basso DX
                 if(board[rows+1][cools+1]==Player::piece::e)
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
         }
@@ -262,7 +262,7 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
             {//verso alto
                 if((board[rows-1][cools-1]==Player::piece::e)||(board[rows-1][cools+1]==Player::piece::e))//non entra se in entrambe c'è qualcosa di diverso da e, se anche solo una e apposto
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
 
             }
@@ -270,7 +270,7 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
             {//verso basso
                 if((board[rows+1][cools-1]==Player::piece::e)||(board[rows+1][cools+1]==Player::piece::e))
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
         }
@@ -283,21 +283,21 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
             {//solo alto SX
                 if(board[rows-1][cools-1]==Player::piece::e)
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
             else if(rows==0)
             {// solo basso SX
                 if(board[rows+1][cools-1]==Player::piece::e)
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
             else
             {// solo SX
                 if((board[rows+1][cools-1]==Player::piece::e)||(board[rows-1][cools-1]==Player::piece::e))
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
                     
@@ -308,21 +308,21 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
             {//solo alto DX
                 if(board[rows-1][cools+1]==Player::piece::e)
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
             else if(rows==0)
             {// solo basso DX
                 if(board[rows+1][cools+1]==Player::piece::e)
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
             else
             {// solo DX
                 if((board[rows+1][cools+1]==Player::piece::e)||(board[rows-1][cools+1]==Player::piece::e))
                 {
-                    Isbloccked=true;
+                    Isbloccked=false;
                 }
             }
         }
@@ -330,21 +330,21 @@ bool Isbloccked(Player::piece board[8][8], int rows,int cools, int player_nr)
         {// solo basso
             if((board[rows+1][cools-1]==Player::piece::e)||((board[rows+1][cools+1]==Player::piece::e)))
             {
-                Isbloccked=true;
+                Isbloccked=false;
             }
         }
         else if (rows==7)
         {//solo alto
             if((board[rows-1][cools-1]==Player::piece::e)||((board[rows-1][cools+1]==Player::piece::e)))
             {
-                Isbloccked=true;
+                Isbloccked=false;
             }
         }
         else
         {//in tutte le direzioni
             if((board[rows+1][cools-1]==Player::piece::e)||(board[rows+1][cools+1]==Player::piece::e)||(board[rows-1][cools-1]==Player::piece::e)||(board[rows-1][cools+1]==Player::piece::e))
             {
-                Isbloccked=true;
+                Isbloccked=false;
             }
         }
                 
@@ -531,7 +531,35 @@ int countPiece(Player::piece board[8][8],int player_nr)
 
    return bloccked; 
 }*/
-
+int countVoidPosition(int* vector, int dim)
+{
+    int i=0,counter=0;
+    while (i<dim*2)
+    {
+        if(vector[i]==-1&&vector[i+1]==-1)
+        {
+            counter++;
+        }
+        
+        i=i+2;
+    }
+    return counter;
+    
+}
+bool isPresent(int* vector,int dim,int rows,int cools)
+{
+    bool present=false;
+    int i=0;
+    while(i<dim&&present==false)
+    {
+        if(vector[i]==rows&&vector[i+1]==cools)
+        {
+            present=true;
+        }
+        i=i+2;
+    }
+    return present;    
+}
 int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
 {//ogni due posizioni del vettore che ritorno c'è la coppia riga-colonna in cui potrei mangiare; se dim==0 restituisco nullptr, altrimenti se non posso mangiare scrivo -1 nelle 2 posizioni del vettore;
     if(dim==0)
@@ -555,13 +583,17 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
             player_nr=2;
         }
         int i=0;
-        int *posValid=new int[dim*2];
+        int *posValidForEat=new int[dim*2];
+        
         while(i<(dim*2))
         {
-            posValid[i]=-1;
+            posValidForEat[i]=-1;
             i++;
         }
+        
         i=0;
+        
+
         //*2 perche perche le posizioni in cui posso mangiare sono a coppie
         bool eatWithDama=false;
         if(board[rows][cool]==Player::piece::X||board[rows][cool]==Player::piece::O)
@@ -641,7 +673,7 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                 }
                 else
                 {
-                    if(rows=6||rows==7)
+                    if(rows==6||rows==7)
                     {//controllo solo altoDX
                         altoSX=false;
                         bassoDX=false;
@@ -694,8 +726,8 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                 }
             }            
         }
+        i=0;
         
-         
         if(altoDX==true)//abbaso riga ed aumento colonna
         {// se in altoDx c'è una pedina avversaria e nella diagonale dopo è libero(c'è 'e')-> posso mangiare
             
@@ -710,12 +742,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                         {//se dopo c'è spazio allora posso aggiungere le posizioni
                             
                                 
-                                posValid[i]=rows-2;
+                                posValidForEat[i]=rows-2;
+                                posValidForEat[i+1]=cool+2;
                                 
-                                i++;
-                                posValid[i]=cool+2;
-                                
-                                i++;
+                                i=i+2;
                             
                             
                         }
@@ -726,27 +756,29 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
             }
             else if(eatWithDama==true)
             {//devo mangiare con una dama, può amngiare chiunque, basta che sia nemico
+           
                 if(board[rows-1][cool+1]==pedinaDaMangiare||board[rows-1][cool+1]==DamaDaMangiare)
                 {
-                    if(board[rows-2][cool+2]==Player::piece::e)
+                    if(board[rows-2][cool+2]==Player::e)
                     {
                         
-                            posValid[i]=rows-2;
+                            posValidForEat[i]=rows-2;
                             
                             i++;
-                            posValid[i]=cool+2;
+                            posValidForEat[i]=cool+2;
                             
                             i++;
                         
                         
                     }
                     
+                    
                 }
                 
             }
         }
         
-       
+        
         if (altoSX==true)//diminuisci riga e colonna
         {
             
@@ -761,10 +793,11 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                         if(board[rows-2][cool-2]==Player::piece::e)
                         {//se dopo c'è spazio allora posso aggiungere le posizioni
                             
-                                posValid[i]=rows-2;
+                        
+                                posValidForEat[i]=rows-2;
                                 
                                 i++;
-                                posValid[i]=cool-2;
+                                posValidForEat[i]=cool-2;
                                 
                                 i++;
                             
@@ -783,11 +816,11 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                 {
                     if(board[rows-2][cool-2]==Player::piece::e)
                     {
-                        
-                            posValid[i]=rows-2;
+                      
+                            posValidForEat[i]=rows-2;
                             
                             i++;
-                            posValid[i]=cool-2;
+                            posValidForEat[i]=cool-2;
                             
                             i++;
                         
@@ -798,7 +831,6 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                 
             }
         }
-        
         
         if (bassoDX==true)//aumento riga e colonna
         {
@@ -811,11 +843,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                     {
                         if(board[rows+2][cool+2]==Player::piece::e)
                         {//se dopo c'è spazio allora posso aggiungere le posizioni
-                            
-                                posValid[i]=rows+2;
+                                posValidForEat[i]=rows+2;
                                 
                                 i++;
-                                posValid[i]=cool+2;
+                                posValidForEat[i]=cool+2;
                                 
                                 i++;
                             
@@ -835,10 +866,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                     if(board[rows+2][cool+2]==Player::piece::e)
                     {
                         
-                            posValid[i]=rows+2;
+                            posValidForEat[i]=rows+2;
                             
                             i++;
-                            posValid[i]=cool+2;
+                            posValidForEat[i]=cool+2;
                             
                             i++;
                         
@@ -863,10 +894,10 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
                         if(board[rows+2][cool-2]==Player::piece::e)
                         {//se dopo c'è spazio allora posso aggiungere le posizioni
                             
-                                posValid[i]=rows+2;
+                                posValidForEat[i]=rows+2;
                                 
                                 i++;
-                                posValid[i]=cool-2;
+                                posValidForEat[i]=cool-2;
                                 
                                 i++;
                              
@@ -879,15 +910,15 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
             }
             else
             {//devo mangiare con una dama, può mangiare chiunque, basta che sia nemico
-                if(board[rows+1][cool-1]==pedinaDaMangiare||board[rows+1][cool+1]==DamaDaMangiare)
+                if(board[rows+1][cool-1]==pedinaDaMangiare||board[rows+1][cool-1]==DamaDaMangiare)
                 {
                     if(board[rows+2][cool-2]==Player::piece::e)
                     {
                         
-                            posValid[i]=rows+2;
+                            posValidForEat[i]=rows+2;
                            
                             i++;
-                            posValid[i]=cool-2;
+                            posValidForEat[i]=cool-2;
                             
                             i++;
                         
@@ -899,8 +930,8 @@ int* eatPositions(Player::piece board[8][8],int rows, int cool, int dim)
             }
         }
         
-        
-        return posValid;
+       
+        return posValidForEat;
     }   
 }
 
@@ -1454,7 +1485,7 @@ void Player::init_board(const std::string& filename) const
     Myfile.close();
 }
 
-void Player::move()//capire perchè sceglie pedina bloccata dai nemici
+void Player::move()
 {
 
     if(this->pimpl->history==nullptr)
@@ -1482,7 +1513,7 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
             DamaDaMuovere=Player::O;
         }
         /*
-        1) scelgo a caso una pedina fra le mie(genero 2 cordinate e cerco in quella posizione) 
+        1) scelgo a caso una pedina fra le mie 
         2) se posso mangiare mangio
         3) se non posso mangiare muovo
         */
@@ -1496,47 +1527,84 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
                 nuovaBoard[i][j]=app->Campo_gioco[i][j];
             }
         }
-
-        int max=7,min=0,range=max-min+1;
         srand((unsigned) time(NULL));
-        int rows=rand()%range+min,cools=rand()%range+min;
+        int max=7,min=0,range=max-min+1;
+        
+        
         bool ho_trovato=false;
-        bool i_cant_move=false;//booleano che si attiva solo quando scorrendo tutta la board non trrovo niente da muovere, salta tutte le verifiche sul muovere e scrive semplicemente la stessa board
-        
-        while(ho_trovato==false)
-        {//continuo a 'ceracare' finchè non ho trovato una mia pedina/dama
-        
-            if(nuovaBoard[rows][cools]==pedinaDaMuovere||nuovaBoard[rows][cools]==DamaDaMuovere)
-            {// ho trovato una pedina/Dama che potrei muovere
-                if(Isbloccked(nuovaBoard,rows,cools,this->pimpl->Player_Number)==true&&countPiece(nuovaBoard,this->pimpl->Player_Number)>1)
-                {//ci sono ancora pedine alleate in campo 
-
-                    ho_trovato=true;
-                    
+        int x=0,number=countPiece(nuovaBoard,this->pimpl->Player_Number);
+        int* positions=new int[number*2];//vettore di posizioni che tiene traccia di tutte le posizioni in cui sono le pedine/dame alleate
+        for(int r=0;r<8;r++)
+        {
+            for(int c=0;c<8;c++)
+            {
+                if(x<number*2)
+                {
+                    if(nuovaBoard[r][c]==pedinaDaMuovere||nuovaBoard[r][c]==DamaDaMuovere)
+                    {
+                        positions[x]=r,positions[x+1]=c;
+                        x=x+2;
+                    }                
                 }
-                else if (countPiece(nuovaBoard,this->pimpl->Player_Number)==1)
-                {//è rimasta solo una pedina-> nonostante io non possa muoverla o mangiare con essa, io devo prenderla
-                    ho_trovato=true;
+            }
+        }
+       
+        x=0;
+        int arraySize=number;
+        int random=(rand()%arraySize)*2;
+        int rows=0,cools=0;
+        while(ho_trovato==false&&arraySize>0)
+        {
+            
+            rows=positions[random],cools=positions[random+1];
+            
+            if(Isbloccked(nuovaBoard,rows,cools,this->pimpl->Player_Number)==false)
+            {
+                
+                ho_trovato=true;
+            }
+            else
+            {
+                int *eatPos,dimension;
+                if(nuovaBoard[rows][cools]==pedinaDaMuovere)
+                {
+                    dimension=2;
                     
                 }
                 else
                 {
-                    rows=(rand()%8);
-                    cools=(rand()%8);
+                    dimension=4;
+                    
                 }
+                eatPos=eatPositions(nuovaBoard,rows,cools,dimension);
+                if(countVoidPosition(eatPos,dimension)<dimension)
+                {//posso mangiare
+                    
+                    ho_trovato=true;
+                }
+                else
+                {//non posso mangiare, quindi non mi posso neanche muovere-> diminuisco array_size di 1 e sposto posizione corrente in fondo al vettore
+                    int app1=rows, app2=cools;
+                    int lastRows=(arraySize-1)*2,lastColls=((arraySize-1)*2)+1;
+                    positions[random]=positions[lastRows],positions[random+1]=positions[lastColls];
+                    positions[lastRows]=app1,positions[lastColls]=app2;
+                    
+                    arraySize--;
+                }
+                
+                delete [] eatPos;
             }
-            else
+            if(arraySize!=0)
             {
-                rows=(rand()%8);
-                cools=(rand()%8);
+                random=(rand()%arraySize)*2;
             }
-           
             
         }
-        
-        //esco quando ho trovato qeuello che voglio muovere
-        //cout<<"move() ho deciso di muovere "<<pieceToChar(nuovaBoard[rows][cools])<<" "<<rows<<","<<cools<<endl;
-        
+
+
+        delete [] positions;
+        cout<<"move() ho deciso di muovere "<<pieceToChar(nuovaBoard[rows][cools])<<" "<<rows<<","<<cools<<endl;
+        //questo blocco qui sotto lo devo sistemare!!!!
         bool pedinaIsDama=false;
         int possibbiliSopostamenti=2;
         if(app->Campo_gioco[rows][cools]==DamaDaMuovere)
@@ -1544,7 +1612,8 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
             pedinaIsDama=true;
             possibbiliSopostamenti=4;
         }
-
+        
+        
         int* EatposPossibili=eatPositions(nuovaBoard,rows,cools,possibbiliSopostamenti);
         
         int iterator=possibbiliSopostamenti*2;
@@ -1556,20 +1625,19 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
             
             if(EatposPossibili[i]==-1&&EatposPossibili[i+1]==-1)
             {
-                
                 posInvalidePerMangiare++;
             }
-            
+            cout<<EatposPossibili[i]<<","<<EatposPossibili[i+1]<<endl;
             i=i+2;
         }
         
-        ho_trovato=false;
         int rowsInCuiMangero=0,coolInCuimangero=0;
         int ArrayApp[4]={0,2,4,6}, posRandom=ArrayApp[rand()%possibbiliSopostamenti];//se non dama
         
-        if((posInvalidePerMangiare!=2&&possibbiliSopostamenti==2)||(posInvalidePerMangiare!=4&&possibbiliSopostamenti==4))
+        if(((posInvalidePerMangiare!=2&&possibbiliSopostamenti==2)||(posInvalidePerMangiare!=4&&possibbiliSopostamenti==4)))
         {//vuol dire che posInvalidePerMangiare non coincide con il totale delle mosse possibili-> è possibile mangiare in qualche posizione
             
+            ho_trovato=false;
             while(ho_trovato==false)
             {//randomizzo la posizione di scelta, se la coppia è diversa da -1 allora scelgo quella
             
@@ -1580,7 +1648,8 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
                         ho_trovato=true;
                         rowsInCuiMangero=EatposPossibili[posRandom], coolInCuimangero=EatposPossibili[posRandom+1];
 
-                    }   
+                    }
+                       
                 }
                 posRandom=ArrayApp[rand()%possibbiliSopostamenti];   
             }
@@ -1595,7 +1664,7 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
             {//se muovo in riga 7, non sono una dama e le mie pedine sono o -> quella pedina che muovo deve diventare una dama O
                 nuovaBoard[rows][cools]=Player::piece::O;
             }
-            //cout<<"move() mangerò in "<<rowsInCuiMangero<<","<<coolInCuimangero<<endl;
+            
             nuovaBoard[rowsInCuiMangero][coolInCuimangero]=nuovaBoard[rows][cools];//sposto la mia pedina
             nuovaBoard[(rowsInCuiMangero+rows)/2][(coolInCuimangero+cools)/2]=Player::piece::e;//dove stava la pedina che ho mangiato ora c'è spazio
             nuovaBoard[rows][cools]=Player::piece::e;
@@ -1629,14 +1698,15 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
                     posInvalidPerMuovere++;
                     
                 }
-                
+                cout<<movePosPossibili[i]<<","<<movePosPossibili[i+1]<<endl;
                 i=i+2;//'conto' a coppie di 2
             }
             i=0;
             
             
-            if((posInvalidPerMuovere!=2&&possibbiliSopostamenti==2)||(posInvalidPerMuovere!=4&&possibbiliSopostamenti==4))
+            if(((posInvalidPerMuovere!=2&&possibbiliSopostamenti==2)||(posInvalidPerMuovere!=4&&possibbiliSopostamenti==4)))
             {//posso muovere
+                ho_trovato=false;
                 
                 posRandom=ArrayApp[rand()%possibbiliSopostamenti];
                 while(ho_trovato==false)
@@ -1648,11 +1718,13 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
                         {
                             ho_trovato=true;
                             rowInCuiMuovero=movePosPossibili[posRandom], coolInCuiMuovero=movePosPossibili[posRandom+1];
-                        }   
+                            
+                        }
+                          
                     }
                     posRandom=ArrayApp[rand()%possibbiliSopostamenti];   
                 }
-
+    
                 if(rowInCuiMuovero==0&&pedinaIsDama==false&&this->pimpl->Player_Number==1)
                 {//se muovo in riga 0, non sono una dama e le mie pedine sono x-> quella pedina che muovo deve diventare una dama X
                     nuovaBoard[rows][cools]=Player::piece::X;
@@ -1662,10 +1734,10 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
                 {//se muovo in riga 7, non sono una dama e le mie pedine sono o -> quella pedina che muovo deve diventare una dama O
                     nuovaBoard[rows][cools]=Player::piece::O;
                 }
-                //cout<<"muoverò in "<<rowInCuiMuovero<<","<<coolInCuiMuovero<<endl;
+                
                 nuovaBoard[rowInCuiMuovero][coolInCuiMuovero]=nuovaBoard[rows][cools];
                 nuovaBoard[rows][cools]=Player::piece::e;
-
+                
                 app->next=new mossa;
                 app->next->next=nullptr;
                 for(int i=0;i<8;i++)
@@ -1681,7 +1753,7 @@ void Player::move()//capire perchè sceglie pedina bloccata dai nemici
             else
             {//non posso muoverer quindi carico una copia della board è basta;
                 delete [] movePosPossibili;
-                //cout<<"move() non muovo"<<endl;
+                cout<<"move() non muovo"<<endl;
                 app->next=new mossa;
                 app->next->next=nullptr;
                 for(int i=0;i<8;i++)
