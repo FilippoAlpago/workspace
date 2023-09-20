@@ -1,25 +1,64 @@
 #include "player.hpp"
 #include <iostream>
-#include <fstream>
-#include <string>
-#include <thread>
 
 using std::cout;
 using std::cin;
 using std::endl;
 using std::ifstream;
 using std::string;
-
+using namespace std;
 int main(int argc, char **argv){
 	
 	int player_nr ;
-	cin>>player_nr;
+	//cin>>player_nr;
 	
-	Player p(player_nr);//decido il player
-	cout << "Playing as player " << player_nr << endl;
-	string board_name ="board_0.txt";
-	p.init_board(board_name);
-	cout<<"ho inizializzato la board "<<board_name<<endl;
+	Player p;//decido il player
+	
+	int s=68;
+	string board_name =to_string(s)+".txt";
+	
+	Player P2(2);
+	cout<<"muove P2"<<endl;
+	P2.load_board(board_name);
+	P2.move();
+	s++;
+	board_name=to_string(s)+".txt";
+	P2.store_board(board_name);
+	/*s++;
+	board_name =to_string(s)+".txt";
+	p.store_board(board_name);
+	P2.load_board(board_name);
+	cout<<"muove P2"<<endl;
+	P2.move();
+	s++;
+	board_name=to_string(s)+".txt";
+	P2.store_board(board_name);
+	p.load_board(board_name);
+	cout<<"muove P1"<<endl;
+	p.move();
+	s++;
+	board_name =to_string(s)+".txt";
+	p.store_board(board_name);
+	P2.load_board(board_name);
+	cout<<"muove P2"<<endl;
+	P2.move();
+	s++;
+	board_name=to_string(s)+".txt";
+	P2.store_board(board_name);
+	p.load_board(board_name);
+	cout<<"muove P1"<<endl;
+	p.move();
+	s++;
+	board_name =to_string(s)+".txt";
+	p.store_board(board_name);
+	P2.load_board(board_name);
+	cout<<"muove P2"<<endl;
+	P2.move();
+	s++;*/
+	
+
+	//p.init_board(board_name);
+	/*cout<<"ho inizializzato la board "<<board_name<<endl;
 	cout<<"ora carico la board "<<board_name<<endl;
 	p.load_board(board_name); 
 	cout<<"ho fatto la load board \n";
@@ -87,7 +126,7 @@ int main(int argc, char **argv){
 		}
 		cout<<endl;
 	}*/
-	cout<<" vedo se ho vinto"<<endl;
+	/*cout<<" vedo se ho vinto"<<endl;
 	if(p.wins()==true)
 	{
 		cout<<"ho vinto \n";
@@ -171,8 +210,14 @@ int main(int argc, char **argv){
 	cout<<"seconda move"<<endl;
 	p.store_board("board_5.txt",0);
 	p.move();
+	cout<<"penultima board"<<endl;
 	for(i=0;i<8;i++)
 	{
+		for(j=0;j<8;j++)
+		{
+			cout<<p(i,j,1);
+		}
+		cout<<" ";
 		for(j=0;j<8;j++)
 		{
 			cout<<p(i,j,0);
@@ -180,8 +225,38 @@ int main(int argc, char **argv){
 		cout<<endl;
 	}
 	
-	p.store_board("board_6.txt",0);
 	
+	//p.store_board("board_6.txt",0);
+	if(p.valid_move()==true)
+	{
+		cout<<"le mosse che ho fatto sono valide"<<endl;
+	}
+	else
+	{
+		cout<<"le mossa che ho fatto non è valida"<<endl;
+	}
+	p.move();
+	for(i=0;i<8;i++)
+	{
+		for(j=0;j<8;j++)
+		{
+			cout<<p(i,j,1);
+		}
+		cout<<" ";
+		for(j=0;j<8;j++)
+		{
+			cout<<p(i,j,0);
+		}
+		cout<<endl;
+	}
+	if(p.valid_move()==true)
+	{
+		cout<<"le mosse che ho fatto sono valide"<<endl;
+	}
+	else
+	{
+		cout<<"le mossa che ho fatto non è valida"<<endl;
+	}*/
 	/*int round = player_nr; // 1 or 2
 		
 	while(true){

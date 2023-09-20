@@ -1603,7 +1603,7 @@ void Player::move()
 
 
         delete [] positions;
-        cout<<"move() ho deciso di muovere "<<pieceToChar(nuovaBoard[rows][cools])<<" "<<rows<<","<<cools<<endl;
+        cout<<"move() ho deciso di muovere "<<pieceToChar(nuovaBoard[rows][cools])<<" "<<rows<<","<<cools<<" ";
         //questo blocco qui sotto lo devo sistemare!!!!
         bool pedinaIsDama=false;
         int possibbiliSopostamenti=2;
@@ -1612,7 +1612,7 @@ void Player::move()
             pedinaIsDama=true;
             possibbiliSopostamenti=4;
         }
-        
+        cout<<possibbiliSopostamenti<<endl;
         
         int* EatposPossibili=eatPositions(nuovaBoard,rows,cools,possibbiliSopostamenti);
         
@@ -1627,7 +1627,7 @@ void Player::move()
             {
                 posInvalidePerMangiare++;
             }
-            cout<<EatposPossibili[i]<<","<<EatposPossibili[i+1]<<endl;
+           
             i=i+2;
         }
         
@@ -1698,7 +1698,7 @@ void Player::move()
                     posInvalidPerMuovere++;
                     
                 }
-                cout<<movePosPossibili[i]<<","<<movePosPossibili[i+1]<<endl;
+                cout<<movePosPossibili[i]<<","<<movePosPossibili[i+1]<<" "<<possibbiliSopostamenti<<endl;
                 i=i+2;//'conto' a coppie di 2
             }
             i=0;

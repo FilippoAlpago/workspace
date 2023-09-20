@@ -2,6 +2,20 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "type": "java",
+      "name": "Interferenze",
+      "request": "launch",
+      "mainClass": "Interferenze",
+      "projectName": "Esercizi_LAB_c2b85449"
+    },
+    {
+      "type": "java",
+      "name": "CreaTantiThread",
+      "request": "launch",
+      "mainClass": "CreaTantiThread",
+      "projectName": "Esercizi_LAB_c2b85449"
+    },
+    {
       "name": "g++.exe - Build and debug active file",
       "type": "cppdbg",
       "request": "launch",

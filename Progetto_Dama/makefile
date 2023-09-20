@@ -4,8 +4,8 @@ play.exe: player.o play.o
 player.o: player.cpp player.hpp
 		g++ -std=c++14 -c player.cpp -oplayer.o
 
-play.o: play.cpp player.hpp
-		g++ -std=c++14 -c play.cpp -oplay.o
+play.o: main.cpp player.hpp
+		g++ -std=c++14 -c main.cpp -oplay.o
  
 
 		
