@@ -1,0 +1,357 @@
+#include <assert.h>
+#include <ctype.h>
+#include <limits.h>
+#include <math.h>
+#include <stdbool.h>
+#include <stddef.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct position {
+    size_t pos;
+    struct position *next;
+};
+
+struct occ {
+    int elem;
+    struct position *positions;
+    struct occ *next;
+};
+
+struct list {
+  int data;
+  struct list *next;
+};
+
+
+typedef struct position position_t;
+typedef struct occ occ_t;
+typedef struct list list_t;
+
+void free_positions(position_t *pos) {
+    if (pos == NULL)
+        return;
+    free_positions(pos->next);
+    free(pos);
+}
+
+void free_occ(occ_t *occ) {
+    if (occ == NULL)
+        return;
+    free_positions(occ->positions);
+    free_occ(occ->next);
+    free(occ);
+}
+void print_occ(occ_t *res, FILE* fptr) {
+    while (res != NULL) {
+        fprintf(fptr, "%d: ", res->elem);
+        position_t *pos = res->positions;
+        fprintf(fptr, "[");
+        while (pos != NULL) {
+            fprintf(fptr, " %zu", pos->pos);
+            pos = pos->next;
+        }
+        fprintf(fptr, " ]");
+        fprintf(fptr, "\n");
+        res = res->next;
+    }
+}
+
+void append(list_t *l, int elem) {
+    list_t *new_elem = malloc(sizeof(list_t));
+    new_elem->data = elem;
+    new_elem->next = 0;
+
+    l->next = new_elem;
+}
+/*
+ * Complete the 'count_occ' function below.
+ *
+ * The function is expected to return a pointer to occ*.
+ * The function accepts list_t *l as parameter.
+ */
+
+
+
+bool is_present_in_Occurance(int element,occ_t* l)
+{//presente nella lista che devo tornare
+    if(l!=NULL)
+    {
+        occ_t* app=l;
+        while (app!=NULL) 
+        {    
+            if(app->elem==element)
+            {
+                return true;
+            }
+            
+            app=app->next;
+        }
+    }
+    
+    return false;
+}
+
+occ_t *count_occ(list_t *l) 
+{  
+    /*
+    1.vedo se il  i-elemento di l è presente nella lista di occurance che devo contare
+        a. se c'è già, aggiungo la posizione i alla lista di occurance che devo restituire
+        b. se non, creo una nuova cella di occurance(realloc) con elemento i-esimo e posizione i
+    2. vado avanti finchè la lista l non termina
+    */
+    if(l==NULL)
+    {
+        return NULL;
+    }
+    else 
+    {
+        int INDEX=0;
+        list_t* app=l;
+        occ_t* occurance=malloc(sizeof(occ_t));//il primo elemento lo inserisco sempre io a mano
+        occurance->elem=app->data;
+        occurance->next=NULL;
+        occurance->positions=malloc(sizeof(position_t));
+        occurance->positions->pos=INDEX;
+        occurance->positions->next=NULL;
+        occ_t* pointer_occurance=occurance;// non devo mai modificare la testa di quello che ritorno, tranne quando devo inserie in testa
+        INDEX++;
+        app=l->next;
+        while (app!=NULL) 
+        {
+            
+            pointer_occurance=occurance;
+            if(is_present_in_Occurance(app->data, occurance)==true)
+            {//numero già presente, identificare dove si trova ed aggiungere posizione
+                /*
+                    1. identificare dove si trova in pointer_occurance
+                    2. Tramite questo indirizzo accedo al campo *position, poi vado avanti su questo indirizzo fino a quando non arrivo a null, creo una nuova cella e aggiungo la posizione in cui ho trovato l'elemento
+                */
+                //printf("%d presente, aggiorno posizioni \n",app->data);
+                bool find=false;
+                while (pointer_occurance!=NULL&&find==false) 
+                {//trovo cella con elemento giusto
+                    if(pointer_occurance->elem==app->data)
+                    {
+                        find=true;
+                    }
+                    else 
+                    {
+                        pointer_occurance=pointer_occurance->next;
+                    }
+                    
+                }
+                    position_t* pointer_position=pointer_occurance->positions;
+                
+                    while(pointer_position->next!=NULL)
+                    {
+                        pointer_position=pointer_position->next;
+                    }
+                    pointer_position->next=(position_t*)malloc(sizeof(position_t));
+                    pointer_position->next->pos=INDEX;
+                    pointer_position->next->next=NULL;
+                 
+            }
+            else 
+            {//devo creare una nuova cella nella posizione giusta(devono essere in ordine crescente i numeri in occurance)
+                /*
+                    1. Determino la 'posizione' in cui è oppurtuno inserie la nuova cella
+                        a. se un elemento è maggiore di me allora devo inserire prima di lui
+                    2. creo nuova cella occ_t
+                    3. aggiungo elemento non traovato in list_t
+                    4. aggiungo inidice in cui ho trovato elemento
+                */
+                occ_t* temp;
+                
+                //indipendentemente dal caso devo creare una nuova cella, visto che l'elemento letto da list non è presente nella lista di occorrenze
+                occ_t* var=(occ_t*)malloc(sizeof(occ_t));
+                var->elem=app->data;
+                var->positions=(position_t*)malloc(sizeof(position_t));
+                var->positions->pos=INDEX;
+                var->positions->next=NULL;
+                
+               if(pointer_occurance->elem>app->data)
+               {//inserisco in prima posizione
+                   temp=pointer_occurance;//salvo la testa
+                   pointer_occurance=var;//attaco nuova testa
+                   pointer_occurance->next=temp;//riattacco la parte di prima   
+               }
+                temp=occurance;
+                
+                bool trovato=false;
+                while (temp->next!=NULL&&trovato==false) 
+                {
+                    if(temp->next->elem>app->data)
+                    {
+                        trovato=true;
+                    }
+                    else 
+                    {
+                        temp=temp->next;    
+                    }
+                    
+                }
+                
+                if(trovato==true)//devo inserie in mezzo
+                {//aganciare nuova cella in mezzo
+                    pointer_occurance=temp->next;
+                    temp->next=var;
+                    var->next=pointer_occurance;
+                    
+                    //printf(" devo inserire %d in mezzo \n",app->data);
+                    
+                }
+                else 
+                {//devo agganciare alla fine
+                    //printf(" devo inserie %d alla fine \n",app->data);
+                    temp->next=var;
+                    temp->next->next=NULL;
+                     
+                }
+                     
+            }    
+            app=app->next;
+            INDEX++;
+            
+        }
+        
+        return occurance;
+        
+    }
+
+}
+int main()
+{
+    FILE* fptr = fopen(getenv("OUTPUT_PATH"), "w");
+
+    int n;
+    scanf("%d", &n);
+    list_t *l1;
+    if(n > 0){
+        l1 = malloc(sizeof(list_t));
+    } else{
+        l1 = NULL;
+    }
+    
+    list_t *cursor_l1 = l1;
+    
+    for (int i = 0; i < n; ++i) {
+        int value_to_add;
+        scanf("%d", &value_to_add);
+        if(i==0){
+            l1->data = value_to_add;
+            continue;
+        }
+        append(cursor_l1, value_to_add);
+        cursor_l1 = cursor_l1->next;
+    }
+
+    occ_t *result = count_occ(l1);
+    
+    print_occ(result, fptr);
+
+    fclose(fptr);
+
+    return 0;
+}
+
+char* readline() {
+    size_t alloc_length = 1024;
+    size_t data_length = 0;
+
+    char* data = malloc(alloc_length);
+
+    while (true) {
+        char* cursor = data + data_length;
+        char* line = fgets(cursor, alloc_length - data_length, stdin);
+
+        if (!line) {
+            break;
+        }
+
+        data_length += strlen(cursor);
+
+        if (data_length < alloc_length - 1 || data[data_length - 1] == '\n') {
+            break;
+        }
+
+        alloc_length <<= 1;
+
+        data = realloc(data, alloc_length);
+
+        if (!data) {
+            data = '\0';
+
+            break;
+        }
+    }
+
+    if (data[data_length - 1] == '\n') {
+        data[data_length - 1] = '\0';
+
+        data = realloc(data, data_length);
+
+        if (!data) {
+            data = '\0';
+        }
+    } else {
+        data = realloc(data, data_length + 1);
+
+        if (!data) {
+            data = '\0';
+        } else {
+            data[data_length] = '\0';
+        }
+    }
+
+    return data;
+}
+
+char* ltrim(char* str) {
+    if (!str) {
+        return '\0';
+    }
+
+    if (!*str) {
+        return str;
+    }
+
+    while (*str != '\0' && isspace(*str)) {
+        str++;
+    }
+
+    return str;
+}
+
+char* rtrim(char* str) {
+    if (!str) {
+        return '\0';
+    }
+
+    if (!*str) {
+        return str;
+    }
+
+    char* end = str + strlen(str) - 1;
+
+    while (end >= str && isspace(*end)) {
+        end--;
+    }
+
+    *(end + 1) = '\0';
+
+    return str;
+}
+
+int parse_int(char* str) {
+    char* endptr;
+    int value = strtol(str, &endptr, 10);
+
+    if (endptr == str || *endptr != '\0') {
+        exit(EXIT_FAILURE);
+    }
+
+    return value;
+}

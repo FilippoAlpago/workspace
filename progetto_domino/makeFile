@@ -1,0 +1,8 @@
+Main: Main.o Rule.o
+	gcc -std=c99 -fsanitize=address Main.o Rule.o -o Main.exe
+
+Rule.o: function_domino.c function_domino.h
+	gcc -std=c99 -c function_domino.c -o Rule.o
+
+Main.o: Main.c function_domino.h
+	gcc -std=c99 -c Main.c -o Main.o

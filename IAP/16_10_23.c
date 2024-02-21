@@ -20,12 +20,14 @@
 int main()
 {
     float A[]={1,2,3,5,9,10};
+    int G[5]={1,2,3};
+    printf("%d %d\n",G[3],G[4]);
     float* B=A;
     printf("%f\n",A[0]);
     printf("%f\n",*B);
-    *B=66;//vale la stessa regola dei puntatori, se modifco ciò a cui 
+    *B=66;//vale la stessa regola dei puntatori, se ciò a cui punta è puntato anche da un altro  valore, allora anche quello punterà al nuovo valore
     printf("%f\n",A[0]);
-    printf("%f\n",*B);
+    printf("%f\n",++(*B));
 
     float *C=&A[2];//C puntatore che punta al 3° elemento di A
     printf("%f\n",*C);
