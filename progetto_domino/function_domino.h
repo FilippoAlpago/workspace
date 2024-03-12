@@ -1,62 +1,66 @@
 #include<stdlib.h>
 #include<stdbool.h>
 #include<stdlib.h>
+
+struct matrix
+{
+    short int val_1_rows;
+    short int val_1_cools;
+    short int val_2_rows;
+    short int val_2_cools;
+} typedef Matrix;
+
+typedef struct matrix* MatrixPosition;
+
 struct card
 {
-    int val_1;
-    int val_2;
-    struct card* SX;
-    struct card* DX;
-    struct card* SX_low;
-    struct card* DX_low;
+    short int val_1;
+    short int val_2;
+    PointerToCard SX;
+    PointerToCard DX;
+    PointerToCard SX_low;
+    PointerToCard DX_low;
     bool is_vertical;
     bool is_used;
     bool is_swapped;
+    MatrixPosition P;
 } typedef Card;
 
 typedef struct card* PointerToCard;
-struct List 
+struct list_cards 
 {
     PointerToCard First;
-    PointerToCard Last;
-} typedef Solution;
+    PointerToCard SpecialCards;
+} typedef List_Cards;
 
-typedef struct List* ListOfCard;
+typedef struct list_cards* ListOfCard;
 
+//metodi
+void print_game_rules();//da fare
 
-ListOfCard createListOfCard();//creo una soluzione
-
-void addCardToList(ListOfCard S,PointerToCard C);//mi serve per quando ho le tessere disponibili
-
+//ciò che riguarda le tessere
+PointerToCard createCard(short int x, short int y);//fatto
+PointerToCard copyCard(PointerToCard C);
 void swapCard(PointerToCard Card);//"giro" una tessera
+void freeCard(PointerToCard C);
 
 
-
-// boleano Vertical mi discrimina se devo inserirla in verticale, ritornno false se mossa non è andata a buon fine-> se verticale rimetto in orizzonatale,se swappo prima verifico se va bene
-bool insertSX(ListOfCard MySolution, PointerToCard CardToInsert);//inserisco a SX 
-
-bool insertSX_low(ListOfCard MySolution, PointerToCard CardToInsert);//inserisoc a SX in basso
-
-bool insertDX(ListOfCard MySolution, PointerToCard CardToInsert);//inserisci a DX
-
-bool insertDX_low(ListOfCard MySolution, PointerToCard CardToInsert);//inserisic a DX in basso
-
-int solutionScore(ListOfCard S);
-
-void printCardList(ListOfCard S);
+//creazione tessere disponibili: sempre e solo 3 tessere speciali per ogni partita
+ListOfCard createListOfCard();
+ListOfCard createStandardGame();//partita standard con 21 tessere
+ListOfCard create_N_random_cards(int N);//tessere random
+ListOfCard create_N_cards(int N);//N tessere scelte da me // SONO ARRIVATO QUI
+void addCard(ListOfCard L, PointerToCard C);
+void printNotUsedCard(ListOfCard L);
+PointerToCard get_I_card(ListOfCard L,int i);//se troppo grande richiedo al volo e lo faccio ricorsivo
 
 
+//soluzione: il campo specialCard è NULL
+ListOfCard createSolution();
+void addCardToSolution(ListOfCard Solution,PointerToCard CardToAdd);
 
-void freeEverithing(ListOfCard S);
-
-void showNotUsedcard(ListOfCard L);//stampa a schermo la lista di carte ancora utilizzabili
-
-
-void GenerateNCards_random(ListOfCard L,int N);//N tessere in modo random
-
-//void GenerateNCards(ListOfCard L,int x, int y);//chiama mi dice i valori da inserrie, se non vanno bene errore
-
-void StandardCards(ListOfCard L);
+int solutionScore(ListOfCard Solution);
 
 
-ListOfCard Game();
+void printSolution(ListOfCard Solution);
+void freeList(ListOfCard L);//faccio univoca per Solution e listaNormale

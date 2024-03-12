@@ -2,7 +2,18 @@
 #include<stdlib.h>
 #include<stdio.h>
 
-PointerToCard createCard(int x,int y){
+
+MatrixPosition createMatrixposition()
+{
+    MatrixPosition M=(MatrixPosition)malloc(1*sizeof(Matrix));
+    M->val_1_cools=-1;
+    M->val_1_rows=-1;
+    M->val_2_cools=-1;
+    M->val_2_rows=-1;
+}
+
+
+PointerToCard createCard(short int x, short int y){
     
     PointerToCard newCard=(PointerToCard)malloc(1*sizeof(Card));
 
@@ -15,35 +26,14 @@ PointerToCard createCard(int x,int y){
     newCard->is_vertical=false;
     newCard->is_used=false;
     newCard->is_swapped=false;
+    newCard->P=createMatrixposition();
     return newCard;
 }
 
-ListOfCard createListOfCard()
+//copio solo i valori x e y
+PointerToCard copyCard(PointerToCard C)
 {
-    
-    ListOfCard L=(ListOfCard)malloc(1*sizeof(Solution));
-    
-    L->First=NULL;
-    L->Last=NULL;
-    
-    return L;
-}
-
-void addCardToList(ListOfCard S,PointerToCard C)
-{//mi serve  quando creo la lista di tessere disponibili
-//printf("%p \n",C);
-    if(S->First==NULL||S->Last==NULL)
-    {//Lista vuota
-        S->First=C;
-        S->Last=C;  
-    }
-    else
-    {//NON è vuota, scorro fino a quanndo non arrivo alla fine
-        
-        S->Last->DX=C;
-        S->Last->DX->SX=S->Last;
-        S->Last=C; 
-    }
+    return createCard(C->val_1,C->val_2);
 }
 
 void swapCard(PointerToCard Card)
@@ -51,41 +41,15 @@ void swapCard(PointerToCard Card)
     int app=Card->val_1;
     Card->val_1=Card->val_2;
     Card->val_2=app;
-    Card->is_swapped=true;
-}
-
-
-
-bool validMove(ListOfCard MySolution,PointerToCard C, bool Vertical, bool swapped, bool dx, bool sx, bool sx_low, bool dx_low);//metodo ausiliario per vedere se una futura mossa è possibile
-
-bool SX(ListOfCard S, PointerToCard CardToInsert,bool Vertical);
-
-bool SX_low(ListOfCard S, PointerToCard CardToInsert,bool Vertical);
-
-bool DX(ListOfCard S, PointerToCard CardToInsert,bool Vertical);
-
-bool DX_low(ListOfCard S, PointerToCard CardToInsert, bool Vertical);
-
-
-
-bool insertSX(ListOfCard MySolution, PointerToCard CardToInsert)
-{
-    return SX(MySolution,CardToInsert,CardToInsert->is_vertical);
-}
-
-bool insertSX_low(ListOfCard MySolution, PointerToCard CardToInsert)
-{
-    return SX_low(MySolution,CardToInsert,CardToInsert->is_vertical);
-}
-
-bool insertDX(ListOfCard MySolution, PointerToCard CardToInsert)
-{
-    return DX(MySolution,CardToInsert,CardToInsert->is_vertical);
-}
-
-bool insertDX_low(ListOfCard MySolution, PointerToCard CardToInsert)
-{
-    return DX_low(MySolution,CardToInsert,CardToInsert->is_vertical);
+    if(Card->is_swapped==true)
+    {
+        Card->is_swapped=false;
+    }
+    else
+    {
+        Card->is_swapped=true;
+    }
+    
 }
 
 int score(PointerToCard X)
@@ -100,59 +64,113 @@ int score(PointerToCard X)
     }
 }
 
-int solutionScore(ListOfCard S)
+ListOfCard createListOfCard()
 {
-    if(S==NULL)
-    {
-        return 0;
+    ListOfCard Ls=(ListOfCard)malloc(1*sizeof(List_Cards));
+    Ls->First=NULL;
+    Ls->SpecialCards=NULL;
+    return Ls;    
+}
+
+void addCard(ListOfCard L, PointerToCard C)
+{
+    PointerToCard app;
+    if((C->val_1<1&&C->val_2<1)||(C->val_1>6&&C->val_2>6))
+    {//tessere speciali
+        if(L->SpecialCards==NULL)
+        {
+            L->SpecialCards=C;
+        }
+        else
+        {
+            app=L->SpecialCards;
+        }
     }
     else
     {
-        return score(S->First);
+        if(L->First==NULL)
+        {
+            L->First=C;
+        }
+        else
+        {
+            app=L->First;
+        }  
     }
-}
-
-void printCardList(ListOfCard S);
-
-bool Libera_tessera(ListOfCard L, PointerToCard C)
-{
-    bool apposto=true;
-    if(C->is_vertical==true&&(C->DX_low!=NULL||C->SX_low!=NULL))
-    {//tessera verticale che ha qualcosa attacato in basso, NON va bene
-        apposto=false;
-    }
-    else if(C->is_vertical==false&&(C->DX!=NULL&&C->SX!=NULL))
-    {//NON verticale, ma è in mezzo
-        apposto=false;
-    }
-    else
+    
+    while (app->DX!=NULL)
     {
-        if(C==L->First)
-        {
-            L->First=C->DX;
-            free(C);
-        }
-        else if(C==L->Last)
-        {
-            L->Last=C->SX;
-            free(C);
-        }
-            
+        app=app->DX;
     }
-    return apposto;
+    app->DX=C;
+    app=NULL;
+
 }
 
-/*void freeCard(ListOfCard L, PointerToCard C)
+ListOfCard createStandardGame()
 {
+    ListOfCard CardList=createListOfCard();
+    short int Val1=1,Val2=1;
+    for (int i = 0; i < 21; i++)
+    {
+        addCard(CardList,createCard(Val1,Val2));
+        if(Val2==6)
+        {
+            Val1++;
+            Val2=1;
+        }
+        else
+        {
+            Val2++;
+        }
+        
+    }
+    
+    addCard(CardList,createCard(0,0));
+    addCard(CardList,createCard(11,11));
+    addCard(CardList,createCard(12,21));
+}
 
-    
-        C->DX->SX=C->SX;
-            C->SX->DX=C->DX;
-            free(C);    
-    
-    
-    
-}*/
+ListOfCard create_N_random_cards(int N)
+{
+    ListOfCard CardList=createListOfCard();
+    for(int i=0;i<N;i++)
+    {
+        int val1=rand()%7,val2=rand()%7;
+ 
+        if(val1==0&&val2==0)
+        {
+            val1++;
+            val2++;
+        }
+        
+        addCard(CardList,createCard(val1,val2));
+    }
+    addCard(CardList,createCard(0,0));
+    addCard(CardList,createCard(11,11));
+    addCard(CardList,createCard(12,21));
+}
+
+ListOfCard create_N_cards(int N)
+{
+    ListOfCard CardList=createListOfCard();
+    int val1,val2;
+    for(int i=0;i<N;i++)
+    {
+        do
+        {
+            printf("inserisci due valori delle tessere compresi fra 1-6: ");
+            scanf("val1: %d",&val1);
+            scanf(" val2: %d \n",&val2);
+        } while ((val1<1|val2<1||val1>6||val2>6));
+
+        addCard(CardList,createCard(val1,val2));
+    }
+
+    addCard(CardList,createCard(0,0));
+    addCard(CardList,createCard(11,11));
+    addCard(CardList,createCard(12,21));
+}
 
 
 
